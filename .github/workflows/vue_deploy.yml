@@ -35,3 +35,4 @@ jobs:
           REMOTE_USER: ubuntu
           TARGET: "/var/www/html/travel-frontend"
           #test
+          #test2
