@@ -62,7 +62,7 @@ async function updateDay() {
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${newDay.name} updated successfully!`;
+      snackbar.value.text = `${newDay.value.name} updated successfully!`;
     })
     .catch((error) => {
       console.log(error);
