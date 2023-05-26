@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, computed } from "vue";
 import { ref } from "vue";
 import HotelServices from "../services/HotelServices.js";
 
@@ -18,13 +18,80 @@ const newHotel = ref({
   id: undefined,
   name: undefined,
   PhoneNumber: undefined,
-  Address: undefined,
+  Address1: undefined,
+  Address2: undefined,
+  State: undefined,
+  City: undefined,
 });
 
 onMounted(async () => {
   await getHotels();
   user.value = JSON.parse(localStorage.getItem("user"));
 });
+
+function formatPhoneNumber(phoneNumber) {
+  // Assuming the phone number is in a standard format like "1234567890"
+  const areaCode = phoneNumber.slice(0, 3);
+  const firstPart = phoneNumber.slice(3, 6);
+  const secondPart = phoneNumber.slice(6);
+  
+  // Format the phone number as "(123) 456-7890"
+  return `(${areaCode}) ${firstPart}-${secondPart}`;
+}
+
+const states = [
+  "Alabama",
+  "Alaska",
+  "Arizona",
+  "Arkansas",
+  "California",
+  "Colorado",
+  "Connecticut",
+  "Delaware",
+  "Florida",
+  "Georgia",
+  "Hawaii",
+  "Idaho",
+  "Illinois",
+  "Indiana",
+  "Iowa",
+  "Kansas",
+  "Kentucky",
+  "Louisiana",
+  "Maine",
+  "Maryland",
+  "Massachusetts",
+  "Michigan",
+  "Minnesota",
+  "Mississippi",
+  "Missouri",
+  "Montana",
+  "Nebraska",
+  "Nevada",
+  "New Hampshire",
+  "New Jersey",
+  "New Mexico",
+  "New York",
+  "North Carolina",
+  "North Dakota",
+  "Ohio",
+  "Oklahoma",
+  "Oregon",
+  "Pennsylvania",
+  "Rhode Island",
+  "South Carolina",
+  "South Dakota",
+  "Tennessee",
+  "Texas",
+  "Utah",
+  "Vermont",
+  "Virginia",
+  "Washington",
+  "West Virginia",
+  "Wisconsin",
+  "Wyoming"
+];
+
 
 async function getHotels() {
   await HotelServices.getHotels()
@@ -77,7 +144,11 @@ async function updateHotel() {
 function openAdd() {
   newHotel.value.name = undefined;
   newHotel.value.PhoneNumber = undefined;
-  newHotel.value.Address = undefined;
+  newHotel.value.Address1 = undefined;
+  newHotel.value.Address2 = undefined;
+  newHotel.value.State = undefined;
+  newHotel.value.City = undefined;
+  newHotel.value.ZipCode = undefined;
   isAdd.value = true;
 }
 
@@ -89,7 +160,12 @@ function openEdit(item) {
   newHotel.value.id = item.id;
   newHotel.value.name = item.name;
   newHotel.value.PhoneNumber = item.PhoneNumber;
-  newHotel.value.Address = item.Address;
+  newHotel.value.Address1 = item.Address1;
+  newHotel.value.Address2 = item.Address2;
+  newHotel.value.State = item.State;
+  newHotel.value.City = item.City;
+  newHotel.value.ZipCode = item.ZipCode;
+  
   isEdit.value = true;
 }
 
@@ -130,14 +206,18 @@ function closeSnackBar() {
         <tbody>
           <tr v-for="item in hotels" :key="item.name">
             <td>{{ item.name }}</td>
-            <td>{{ item.PhoneNumber }}</td>
-            <td>${{ item.Address }}</td>
+            <td>{{ formatPhoneNumber(item.PhoneNumber) }}</td>
             <td>
-              <v-icon
-                size="small"
-                icon="mdi-pencil"
-                @click="openEdit(item)"
-              ></v-icon>
+              <div>
+                <span>{{ item.Address1 }}</span>
+                <br />
+                <span>{{ item.Address2 }}</span>
+                <br />
+                <span>{{ item.State }}, {{ item.City }} , {{ item.ZipCode }} </span>
+              </div>
+            </td>
+            <td>
+              <v-icon size="small" icon="mdi-pencil" @click="openEdit(item)"></v-icon>
             </td>
           </tr>
         </tbody>
@@ -164,9 +244,30 @@ function closeSnackBar() {
               type="PhoneNumber"
             ></v-text-field>
             <v-text-field
-              v-model="newHotel.Address"
-              label="Address"
-              type="Address"
+              v-model="newHotel.Address1"
+              label="Address1"
+              type="Address1"
+            ></v-text-field>
+            <v-text-field
+              v-model="newHotel.Address2"
+              label="Address2(Opptional)"
+              type="Address2"
+            ></v-text-field>
+            <v-select
+            v-model="newHotel.State"
+            :items="states"
+            label="State"
+            required
+          ></v-select>
+            <v-text-field
+              v-model="newHotel.City"
+              label="City"
+              type="City"
+            ></v-text-field>
+            <v-text-field
+              v-model="newHotel.ZipCode"
+              label="Zip Code"
+              type="ZipCode"
             ></v-text-field>
           </v-card-text>
           <v-card-actions>
