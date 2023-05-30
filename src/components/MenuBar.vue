@@ -32,7 +32,7 @@ function logout() {
 <template>
   <div>
     <v-app-bar color="primary" app dark>
-      <router-link :to="{ name: 'sites' }">
+      <router-link :to="{ name: 'trips' }">
         <v-img
           class="mx-2"
           :src="logoURL"
@@ -45,6 +45,7 @@ function logout() {
         {{ title }}
       </v-toolbar-title>
       <v-spacer></v-spacer>
+      <v-btn class="mx-2" :to="{ name: 'trips' }"> Trips </v-btn>
       <v-btn v-if="user === null" class="mx-2" :to="{ name: 'login' }">
         Login
       </v-btn>
@@ -53,9 +54,6 @@ function logout() {
       </v-btn>
       <v-btn v-if="user !== null" class="mx-2" :to="{ name: 'hotels' }">
         Hotels
-      </v-btn>
-      <v-btn v-if="user !== null" class="mx-2" :to="{ name: 'trips' }">
-        Trips
       </v-btn>
       <v-menu v-if="user !== null" min-width="200px" rounded>
         <template v-slot:activator="{ props }">
