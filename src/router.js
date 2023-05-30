@@ -29,6 +29,11 @@ const router = createRouter({
       props: true,
       component: () => import("./views/EditTrip.vue"),
     },
+    {
+      path: "/days",
+      name: "days",
+      component: () => import("./views/DayList.vue"),
+    },
   ],
 });
 
