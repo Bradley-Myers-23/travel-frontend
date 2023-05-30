@@ -8,7 +8,7 @@ const router = createRouter({
       name: "login",
       component: () => import("./views/Login.vue"),
     },
-    {
+    /*{
       path: "/recipes",
       name: "recipes",
       component: () => import("./views/RecipeList.vue"),
@@ -23,11 +23,21 @@ const router = createRouter({
       path: "/ingredients",
       name: "ingredients",
       component: () => import("./views/IngredientList.vue"),
-    },
+    },*/
     {
       path: "/days",
       name: "days",
       component: () => import("./views/DayList.vue"),
+    },
+    {
+      path: "/trips",
+      name: "trips",
+      component: () => import("./views/TripList.vue"),
+    },
+    {
+      path: "/editTrip",
+      name: "editTrip",
+      component: () => import("./views/EditTrip.vue"),
     },
   ],
 });
