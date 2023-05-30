@@ -1,13 +1,13 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
-import TripDayServices from "../services/TripDayServices.js";
+//import TripDayServices from "../services/TripDayServices.js";
 import TripDayServices from "../services/TripDayServices";
 
 const router = useRouter();
 
 const showDetails = ref(false);
-const TripDays = ref([]);
+//const TripDays = ref([]);
 const TripDays = ref([]);
 const user = ref(null);
 
@@ -33,17 +33,6 @@ async function getTripDays() {
     });
 }
 
-async function getTripDays() {
-  await TripDayServices.getTripDaysForTripWithDays(
-    props.Trip.id
-  )
-    .then((response) => {
-      TripDays.value = response.data;
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-}
 
 function navigateToEdit() {
   router.push({ name: "editTrip", params: { id: props.Trip.id } });

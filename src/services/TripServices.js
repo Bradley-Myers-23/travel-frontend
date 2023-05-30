@@ -1,4 +1,4 @@
-import apiClient from "./trips";
+import apiClient from "./services";
 
 export default {
   getTrips() {
