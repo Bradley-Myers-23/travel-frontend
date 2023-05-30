@@ -111,7 +111,7 @@ function closeSnackBar() {
             color="secondary"
             @click="navigateToRecipes()"
           >
-            View Published Recipes
+            View Trips
           </v-btn>
         </v-card-title>
       </v-card>
