@@ -18,6 +18,17 @@ const router = createRouter({
       name: "hotels",
       component: () => import("./views/HotelList.vue"),
     },
+    {
+      path: "/trips",
+      name: "trips",
+      component: () => import("./views/TripList.vue"),
+    },
+    {
+      path: "/trip/:id",
+      name: "editTrip",
+      props: true,
+      component: () => import("./views/EditTrip.vue"),
+    },
   ],
 });
 
