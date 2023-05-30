@@ -4,7 +4,9 @@ import { useRoute } from "vue-router";
 import DatePicker from "vue3-datepicker";
 import TripServices from "../services/TripServices";
 import HotelServices from "../services/HotelServices.js";
+import SiteServices from "../services/SiteServices.js";
 
+const sites = ref([]);
 const route = useRoute();
 const hotels = ref([]);
 const trip = ref({});
@@ -20,22 +22,35 @@ const snackbar = ref({
 onMounted(async () => {
   await getTrip();
   await getHotels();
+  await getSites();
 });
-async function getHotelsByDate() {
-  const start = new Date(trip.value.startDate);
-  const end = new Date(trip.value.endDate);
-  const dayCount = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
-  hotels.value = Array.from({ length: dayCount }, () => ({}));
+// async function getHotelsByDate() {
+//   const start = new Date(trip.value.startDate);
+//   const end = new Date(trip.value.endDate);
+//   const dayCount = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+//   hotels.value = Array.from({ length: dayCount }, () => ({}));
 
-  const formattedStartDate = start.toISOString().substr(0, 10);
-  const formattedEndDate = end.toISOString().substr(0, 10);
+//   const formattedStartDate = start.toISOString().substr(0, 10);
+//   const formattedEndDate = end.toISOString().substr(0, 10);
 
-  await HotelServices.getHotelsByDate(formattedStartDate, formattedEndDate)
+//   await HotelServices.getHotelsByDate(formattedStartDate, formattedEndDate)
+//     .then((response) => {
+//       const hotelsData = response.data;
+//       hotelsData.forEach((hotel, index) => {
+//         hotels.value[index] = { date: hotel.date, name: hotel.name };
+//       });
+//     })
+//     .catch((error) => {
+//       console.log(error);
+//       snackbar.value.value = true;
+//       snackbar.value.color = "error";
+//       snackbar.value.text = error.response.data.message;
+//     });
+// }
+async function getSites() {
+  await SiteServices.getSites()
     .then((response) => {
-      const hotelsData = response.data;
-      hotelsData.forEach((hotel, index) => {
-        hotels.value[index] = { date: hotel.date, name: hotel.name };
-      });
+      sites.value = response.data;
     })
     .catch((error) => {
       console.log(error);
@@ -89,7 +104,7 @@ const dateRange = computed(() => {
 function planTrip() {
   // ... existing code ...
   openCalendarDialog();
-  getHotelsByDate();
+  //getHotelsByDate();
 }
 
 async function getTrip() {
@@ -115,7 +130,7 @@ function closeCalendarDialog() {
 function confirmDateRange() {
   [trip.value.startDate, trip.value.endDate] = selectedDates.value;
   showCalendarDialog.value = false;
-  getHotelsByDate();
+  //getHotelsByDate();
 }
 
 async function updateTrip() {
@@ -131,7 +146,7 @@ async function updateTrip() {
       snackbar.value.color = "error";
       snackbar.value.text = error.response.data.message;
     });
-  getHotelsByDate();
+  // getHotelsByDate();
   await getTrip();
 }
 
@@ -212,33 +227,36 @@ function closeSnackBar() {
                 <p>Selected Date Range:</p>
                 <ul>
                   <li v-for="date in dateRange" :key="date">{{ date }}</li>
-                  
                 </ul>
-        
               </div>
-              
             </v-card-text>
-        
-            <v-row v-for="(hotel, index) in hotels" :key="index">
-  <v-col cols="4">
-    <v-text-field
-      v-model="hotel.date"
-      type="date"
-      label="Date"
-      readonly
-    ></v-text-field>
-  </v-col>
-  <v-col cols="8">
-    <v-autocomplete
-      v-model="hotel.name"
-      :items="hotels.map((hotel) => hotel.name)"
-      label="Hotel Name"
-    ></v-autocomplete>
-  </v-col>
-</v-row>
+            <v-row v-for="(date, index) in dateRange" :key="index">
+              <v-col cols="4">
+                <v-text-field
+                v-model="day"
+                  :value="date"
+                  type="date"
+                  label="Date"
+                  readonly
+                ></v-text-field>
+              </v-col>
+              <v-col cols="8">
+                <v-autocomplete
+                v-model="day"
+                  :items="hotels.map((hotel) => hotel.name)"
+                  label="Hotel Name"
+                ></v-autocomplete>
+                <v-autocomplete
+                v-model="day"
+                  :items="sites.map((site) => site.name)"
+                  label="Site Name"
+                ></v-autocomplete>
+                 <v-btn color="accent"  @click="addData(index)">Add</v-btn>
+              </v-col>
+            </v-row>
 
             <v-card-actions>
-              <v-btn color="primary" @click="confirmDateRange">Confirm</v-btn>
+              
               <v-btn @click="closeCalendarDialog">Cancel</v-btn>
             </v-card-actions>
           </v-card>

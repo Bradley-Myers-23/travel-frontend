@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 
 const router = useRouter();
@@ -40,7 +40,7 @@ function navigateToEdit() {
           {{ trip.name }}
           <v-chip class="ma-2" color="primary" label>
             <v-icon start icon="mdi-date-outline"></v-icon>
-            {{ trip.startDate }} 
+            {{ trip.startDate}} 
           </v-chip>
           <v-chip class="ma-2" color="accent" label>
             <v-icon start icon="mdi-date-outline"></v-icon>
