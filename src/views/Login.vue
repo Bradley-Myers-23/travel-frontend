@@ -103,6 +103,7 @@ function closeSnackBar() {
         </v-card-actions>
       </v-card>
 
+
       <v-dialog persistent v-model="isCreateAccount" width="800">
         <v-card class="rounded-lg elevation-5">
           <v-card-title class="headline mb-2">Create Account </v-card-title>
