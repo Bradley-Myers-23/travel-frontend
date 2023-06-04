@@ -17,6 +17,7 @@ const newSite = ref({
   name: undefined,
   address: undefined,
   description: undefined,
+  picture: undefined,
 });
 
 onMounted(async () => {
@@ -76,6 +77,7 @@ function openAdd() {
   newSite.value.name = undefined;
   newSite.value.address = undefined;
   newSite.value.description = undefined;
+  newSite.value.picture = undefined;
   isAdd.value = true;
 }
 
@@ -88,6 +90,7 @@ function openEdit(item) {
   newSite.value.name = item.name;
   newSite.value.address = item.address;
   newSite.value.description = item.description;
+  newSite.value.picture = item.picture;
   isEdit.value = true;
 }
 
