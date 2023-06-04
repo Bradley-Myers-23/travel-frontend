@@ -34,6 +34,11 @@ const router = createRouter({
       name: "days",
       component: () => import("./views/DayList.vue"),
     },
+    {
+      path: "/userTypes",
+      name: "userTypes",
+      component: () => import("./views/UserTypeList.vue"),
+    },    
   ],
 });
 
