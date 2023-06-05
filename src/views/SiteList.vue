@@ -2,6 +2,7 @@
 import { onMounted } from "vue";
 import { ref } from "vue";
 import SiteServices from "../services/SiteServices.js";
+import UploadImage from "../components/UploadImage.vue"
 
 const sites = ref([]);
 const isAdd = ref(false);
@@ -59,6 +60,7 @@ async function addSite() {
 async function updateSite() {
   isEdit.value = false;
   await SiteServices.updateSite(newSite.value)
+  await UploadImage.upload()
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
@@ -125,6 +127,7 @@ function closeSnackBar() {
             <th class="text-left">Name</th>
             <th class="text-left">Address</th>
             <th class="text-left">Description</th>
+            <th class="text-left">Image</th>
             <th class="text-left">Actions</th>
           </tr>
         </thead>
@@ -133,6 +136,7 @@ function closeSnackBar() {
             <td>{{ item.name }}</td>
             <td>{{ item.address }}</td>
             <td>{{ item.description }}</td>
+            <td>{{ item.picture }}</td>
             <td>
               <v-icon
                 size="small"
@@ -167,6 +171,11 @@ function closeSnackBar() {
               label="Description"
               required
             ></v-text-field>
+            <upload-image
+              v-model="newSite.picture"
+              label="Picture"
+              ref="img"
+            ></upload-image>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
