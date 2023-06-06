@@ -4,6 +4,18 @@ import { onMounted, computed } from "vue";
 import { ref } from "vue";
 import HotelServices from "../services/HotelServices.js";
 
+function isValidURL(url) {
+  const pattern = /^(https?:\/\/)?([\w.]+)\.([a-z]{2,6}\.?)(\/[\w.]*)*\/?$/i;
+  return pattern.test(url);
+}
+
+function formatURL(url) {
+  if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    return `http://${url}`;
+  }
+  return url;
+}
+
 
 
 const hotels = ref([]);
@@ -204,8 +216,9 @@ function closeSnackBar() {
             <th class="text-left">Name</th>
             <th class="text-left">Phone Number</th>
             <th class="text-left">Address</th>
-            <th class="text-left">Actions</th>
             <th class="text-left">Link</th>
+            <th class="text-left">Actions</th>
+            
           </tr>
         </thead>
         <tbody>
@@ -220,9 +233,17 @@ function closeSnackBar() {
                 <br />
                 <span>{{ item.State }}, {{ item.City }} , {{ item.ZipCode }} </span>
                 <br />
-                <span>{{ item.Link }}</span>
+                
               </div>
             </td>
+            <td>
+               <a v-if="isValidURL(item.Link)" :href="formatURL(item.Link)" target="_blank">
+                {{ item.Link }}
+               </a>
+               <span v-else>{{ item.Link }}</span>
+            </td>
+
+
             <td>
               <v-icon size="small" icon="mdi-pencil" @click="openEdit(item)"></v-icon>
             </td>
