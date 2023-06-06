@@ -23,6 +23,7 @@ const newHotel = ref({
   Address2: undefined,
   State: undefined,
   City: undefined,
+  Link: undefined,
 });
 
 onMounted(async () => {
@@ -131,7 +132,7 @@ async function updateHotel() {
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${newHotel.name} updated successfully!`;
+      snackbar.value.text = `${newHotel.value.name} updated successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -150,7 +151,9 @@ function openAdd() {
   newHotel.value.State = undefined;
   newHotel.value.City = undefined;
   newHotel.value.ZipCode = undefined;
+  newHotel.value.Link = undefined;
   isAdd.value = true;
+
 }
 
 function closeAdd() {
@@ -166,7 +169,7 @@ function openEdit(item) {
   newHotel.value.State = item.State;
   newHotel.value.City = item.City;
   newHotel.value.ZipCode = item.ZipCode;
-  
+  newHotel.value.Link = item.Link;
   isEdit.value = true;
 }
 
@@ -202,6 +205,7 @@ function closeSnackBar() {
             <th class="text-left">Phone Number</th>
             <th class="text-left">Address</th>
             <th class="text-left">Actions</th>
+            <th class="text-left">Link</th>
           </tr>
         </thead>
         <tbody>
@@ -215,6 +219,8 @@ function closeSnackBar() {
                 <span>{{ item.Address2 }}</span>
                 <br />
                 <span>{{ item.State }}, {{ item.City }} , {{ item.ZipCode }} </span>
+                <br />
+                <span>{{ item.Link }}</span>
               </div>
             </td>
             <td>
@@ -269,6 +275,11 @@ function closeSnackBar() {
               v-model="newHotel.ZipCode"
               label="Zip Code"
               type="ZipCode"
+            ></v-text-field>
+            <v-text-field
+              v-model="newHotel.Link"
+              label="Link"
+              type="Link"
             ></v-text-field>
           </v-card-text>
           <v-card-actions>
