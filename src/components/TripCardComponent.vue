@@ -62,7 +62,8 @@ function navigateToEdit() {
     </v-card-text>
     <v-expand-transition>
       <v-card-text class="pt-0" v-show="showDetails">
-        <h3>calander</h3>
+        <h3>Calendar</h3>
+        
        
       </v-card-text>
     </v-expand-transition>

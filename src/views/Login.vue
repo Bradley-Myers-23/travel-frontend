@@ -16,6 +16,7 @@ const user = ref({
   lastName: "",
   email: "",
   password: "",
+  userType: "Traveller"
 });
 
 onMounted(async () => {
