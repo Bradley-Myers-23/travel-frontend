@@ -6,8 +6,7 @@ import tripSiteServices from "../services/tripSiteServices.js";
 const router = useRouter();
 
 const showDetails = ref(false);
-
-
+const tripSites = ref([]);
 const user = ref(null);
 
 const props = defineProps({
@@ -17,12 +16,12 @@ const props = defineProps({
 });
 
 onMounted(async () => {
-  gettripSites();
+  await getTripSites();
 
   user.value = JSON.parse(localStorage.getItem("user"));
 });
 
-async function gettripSites() {
+async function getTripSites() {
   await tripSiteServices.getTripSitesForTrip(props.trip.id)
     .then((response) => {
       tripSites.value = response.data;
@@ -68,30 +67,21 @@ function navigateToEdit() {
     <v-card-text class="body-1">
       {{ trip.description }}
     </v-card-text>
-
-    <v-card-text class="body-2">
-      <h3>Sites</h3>
+    <v-expand-transition>
+      <v-card-text class="pt-0" v-show="showDetails">
+        <h3>Calendar</h3>
+        <br>
+        <h3>Sites</h3>
         <v-list>
           <v-list-item
             v-for="tripSite in tripSites"
             :key="tripSite.id"
           >
-            <b
-              >{{ tripSite.quantity }}
-              {{
-                `${tripSite.site.name}`
-              }}</b
-            >
-            of {{ tripSite.site.address }} 
+            <b>{{ tripSite.site.name }}</b>
           </v-list-item>
         </v-list>
-    </v-card-text>
-
-    <v-expand-transition>
-      <v-card-text class="pt-0" v-show="showDetails">
-        <h3>calander</h3>
-       
       </v-card-text>
+      
     </v-expand-transition>
   </v-card>
 </template>

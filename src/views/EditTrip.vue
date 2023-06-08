@@ -84,7 +84,7 @@ async function getHotels() {
 }
 
 async function getTripSites() {
-  await tripSiteServices.gettripSitesFortrip(route.params.id)
+  await tripSiteServices.getTripSitesForTrip(route.params.id)
     .then((response) => {
       tripSites.value = response.data;
     })
@@ -299,7 +299,7 @@ function closeSnackBar() {
                 ></v-autocomplete>
                 <v-autocomplete
                 v-model="day"
-                  :items="$ref.map((site) => site.name)"
+                  :items="sites.map((site) => site.name)"
                   label="Site Name"
                 ></v-autocomplete>
 
