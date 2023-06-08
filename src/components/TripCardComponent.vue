@@ -2,11 +2,13 @@
 import { onMounted, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import tripSiteServices from "../services/TripSiteServices.js";
+import tripDayServices from "../services/TripDayServices.js";
 
 const router = useRouter();
 
 const showDetails = ref(false);
 const tripSites = ref([]);
+const tripDays = ref([]);
 const user = ref(null);
 
 const props = defineProps({
@@ -17,6 +19,7 @@ const props = defineProps({
 
 onMounted(async () => {
   await getTripSites();
+  await getTripDays();
 
   user.value = JSON.parse(localStorage.getItem("user"));
 });
@@ -25,6 +28,16 @@ async function getTripSites() {
   await tripSiteServices.getTripSitesForTrip(props.trip.id)
     .then((response) => {
       tripSites.value = response.data;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
+
+async function getTripDays() {
+  await tripDayServices.getTripDaysForTrip(props.trip.id)
+    .then((response) => {
+      tripDays.value = response.data;
     })
     .catch((error) => {
       console.log(error);
@@ -46,12 +59,10 @@ function navigateToEdit() {
         <v-col cols="10">
           {{ trip.name }}
           <v-chip class="ma-2" color="primary" label>
-            <v-icon start icon="mdi-date-outline"></v-icon>
-            {{ trip.startDate}} 
+            {{ trip.startDate.slice(0,10)}} 
           </v-chip>
           <v-chip class="ma-2" color="accent" label>
-            <v-icon start icon="mdi-date-outline"></v-icon>
-            {{ trip.endDate }} 
+            {{ trip.endDate.slice(0,10) }} 
           </v-chip>
         </v-col>
         <v-col class="d-flex justify-end">
@@ -71,15 +82,18 @@ function navigateToEdit() {
       <v-card-text class="pt-0" v-show="showDetails">
         <h3>Calendar</h3>
         <br>
-        <h3>Sites</h3>
-        <v-list>
-          <v-list-item
-            v-for="tripSite in tripSites"
-            :key="tripSite.id"
+        <v-list class="body-1"
+            v-for="tripDay in tripDays"
+            :key="tripDay.id"
           >
-            <b>{{ tripSite.site.name }}</b>
-          </v-list-item>
-        </v-list>
+            <b>Day {{ tripDay.dayNumber}}</b>
+            <v-list-item
+                  v-for="site in tripDay.tripSite"
+                  :key="site.id"
+                  pill
+                  >{{ site.site.name }}</v-list-item
+                >
+          </v-list>
       </v-card-text>
       
     </v-expand-transition>

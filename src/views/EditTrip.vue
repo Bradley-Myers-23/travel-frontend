@@ -20,8 +20,6 @@ const isEditSite = ref(false);
 const isAddDay = ref(false);
 const isEditDay = ref(false);
 const hotels = ref([]);
-const showCalendarDialog = ref(false);
-const selectedDates = ref([]);
 const snackbar = ref({
   value: false,
   color: "",
@@ -30,13 +28,12 @@ const snackbar = ref({
 const newDay = ref({
   id: undefined,
   dayNumber: undefined,
-  instruction: undefined,
+  descripton: undefined,
   tripId: undefined,
   tripSite: [],
 });
 const newSite = ref({
   id: undefined,
-  quantity: undefined,
   tripId: undefined,
   tripDayId: undefined,
   siteId: undefined,
@@ -161,7 +158,6 @@ async function checkUpdateSite() {
     console.log(newDay.value.tripSite);
     for (let i = 0; i < newDay.value.tripSite.length; i++) {
       newSite.value.id = newDay.value.tripSite[i].id;
-      newSite.value.quantity = newDay.value.tripSite[i].quantity;
       newSite.value.tripDayId = newDay.value.id;
       selectedSite.value.id =
         newDay.value.tripSite[i].siteId;
@@ -244,7 +240,6 @@ async function deleteDay(day) {
 
 function openAddSite() {
   newSite.value.id = undefined;
-  newSite.value.quantity = undefined;
   newSite.value.tripDayId = undefined;
   newSite.value.siteId = undefined;
   selectedSite.value = undefined;
@@ -253,7 +248,6 @@ function openAddSite() {
 
 function openEditSite(site) {
   newSite.value.id = site.id;
-  newSite.value.quantity = site.quantity;
   newSite.value.tripDayId = site.tripDayId;
   newSite.value.siteId = site.siteId;
   selectedSite.value = site.site;
@@ -263,7 +257,7 @@ function openEditSite(site) {
 function openAddDay() {
   newDay.value.id = undefined;
   newDay.value.dayNumber = undefined;
-  newDay.value.instruction = undefined;
+  newDay.value.descripton = undefined;
   newDay.value.tripSite = [];
   isAddDay.value = true;
 }
@@ -271,7 +265,7 @@ function openAddDay() {
 function openEditDay(day) {
   newDay.value.id = day.id;
   newDay.value.dayNumber = day.dayNumber;
-  newDay.value.instruction = day.instruction;
+  newDay.value.descripton = day.description;
   newDay.value.tripSite = day.tripSite;
   isEditDay.value = true;
 }
@@ -296,27 +290,6 @@ function closeSnackBar() {
   snackbar.value.value = false;
 }
 
-function openCalendarDialog() {
-  selectedDates.value = [trip.value.startDate, trip.value.endDate];
-  showCalendarDialog.value = true;
-}
-
-function closeCalendarDialog() {
-  showCalendarDialog.value = false;
-}
-
-function confirmDateRange() {
-  [trip.value.startDate, trip.value.endDate] = selectedDates.value;
-  showCalendarDialog.value = false;
-  //getHotelsByDate();
-}
-
-function planTrip() {
-  // ... existing code ...
-  openCalendarDialog();
-  //getHotelsByDate();
-}
-
 const dateRange = computed(() => {
   if (trip.value.startDate && trip.value.endDate) {
     const start = new Date(trip.value.startDate);
@@ -325,7 +298,7 @@ const dateRange = computed(() => {
     return Array.from({ length: dayCount }, (_, index) => {
       const date = new Date(start);
       date.setDate(date.getDate() + index);
-      return date.toISOString().substr(0, 10);
+      return date.toISOString().slice(0, 10);
     });
   }
   return [];
@@ -334,7 +307,7 @@ const dateRange = computed(() => {
 const formattedStartDate = computed(() => {
   if (trip.value.startDate) {
     const date = new Date(trip.value.startDate);
-    return date.toISOString().substr(0, 10);
+    return date.toISOString().slice(0, 10);
   }
   return null;
 });
@@ -342,7 +315,7 @@ const formattedStartDate = computed(() => {
 const formattedEndDate = computed(() => {
   if (trip.value.endDate) {
     const date = new Date(trip.value.endDate);
-    return date.toISOString().substr(0, 10);
+    return date.toISOString().slice(0, 10);
   }
   return null;
 });
@@ -358,6 +331,12 @@ async function getHotels() {
       snackbar.value.color = "error";
       snackbar.value.text = error.response.data.message;
     });
+}
+
+function addDays(date, days) {
+  var result = new Date(date);
+  result.setDate(result.getDate() + days);
+  return result.toISOString().slice(0, 10);;
 }
 </script>
 
@@ -381,22 +360,19 @@ async function getHotels() {
                   label="Name"
                   required
                 ></v-text-field>
+
                 <v-text-field
-                  v-model.number="trip.servings"
-                  label="Number of Servings"
-                  type="number"
+                  v-bind:value="formattedStartDate"
+                  v-model="trip.startDate"
+                  type="date"
+                  label="Start Date"
                 ></v-text-field>
                 <v-text-field
-                  v-model.number="trip.time"
-                  label="Time to Make (in minutes)"
-                  type="number"
+                  v-bind:value="formattedEndDate"
+                  v-model="trip.endDate"
+                  type="date"
+                  label="End Date"
                 ></v-text-field>
-                <v-switch
-                  v-model="trip.isPublished"
-                  hide-details
-                  inset
-                  :label="`Publish? ${trip.isPublished ? 'Yes' : 'No'}`"
-                ></v-switch>
               </v-col>
               <v-col>
                 <v-textarea
@@ -435,17 +411,7 @@ async function getHotels() {
                 v-for="tripSite in tripSites"
                 :key="tripSite.id"
               >
-                <b
-                  >{{ tripSite.quantity }}
-                  {{
-                    `${tripSite.site.unit}${
-                      tripSite.quantity > 1 ? "s" : ""
-                    }`
-                  }}</b
-                >
-                of {{ tripSite.site.name }} (${{
-                  tripSite.site.pricePerUnit
-                }}/{{ tripSite.site.unit }})
+                <b>{{ tripSite.site.name }} </b>
                 <template v-slot:append>
                   <v-row>
                     <v-icon
@@ -485,16 +451,15 @@ async function getHotels() {
             <v-table>
               <tbody>
                 <tr v-for="day in tripDays" :key="day.id">
-                  <td>{{ day.dayNumber }}</td>
-                  <td>{{ day.instruction }}</td>
+                  <td>Day {{ day.dayNumber }}: {{ addDays(trip.startDate, day.dayNumber-1)  }}</td>
                   <td>
                     <v-chip
                       size="small"
-                      v-for="site in day.tripSite"
+                      v-for="site in day.tripSites"
                       :key="site.id"
                       pill
                       >{{ site.site.name }}</v-chip
-                    >
+                    ><br>
                   </td>
                   <td>
                     <v-icon
@@ -533,16 +498,6 @@ async function getHotels() {
         }}</v-card-title>
         <v-card-text>
           <v-row>
-            <v-col cols="3">
-              <v-text-field
-                v-model="newSite.quantity"
-                label="Quantity"
-                type="number"
-                required
-              >
-              </v-text-field>
-            </v-col>
-
             <v-col>
               <v-select
                 v-model="selectedSite"
@@ -554,14 +509,6 @@ async function getHotels() {
                 required
               >
                 <template v-slot:prepend>
-                  {{
-                    `${
-                      selectedSite && selectedSite.unit
-                        ? selectedSite.unit
-                        : ""
-                    }${newSite.quantity > 1 ? "s" : ""}`
-                  }}
-                  of
                 </template>
               </v-select>
             </v-col>
@@ -617,8 +564,8 @@ async function getHotels() {
           ></v-text-field>
 
           <v-textarea
-            v-model="newDay.instruction"
-            label="Instruction"
+            v-model="newDay.descripton"
+            label="Description"
             required
           ></v-textarea>
 
