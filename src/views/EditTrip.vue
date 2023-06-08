@@ -101,11 +101,7 @@ const dateRange = computed(() => {
   return [];
 });
 
-function planTrip() {
-  // ... existing code ...
-  openCalendarDialog();
-  //getHotelsByDate();
-}
+
 
 async function getTrip() {
   await TripServices.getTrip(route.params.id)
@@ -148,6 +144,36 @@ async function updateTrip() {
     });
   // getHotelsByDate();
   await getTrip();
+}
+async function addSite() {
+  await SiteServices.updateSite(sites.value)
+  .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `${sites.value.value}  sites updated successfully!`;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = " site error";
+      snackbar.value.text = error.response.data.message;
+    });
+    await getSite();
+}
+async function getSite() {
+  await SiteServices.getSite(route.params.id)
+    .then((response) => {
+      sites.value = response.data;
+    })
+
+    .catch((error) => {
+      console.log(error);
+    });
+}
+function planTrip() {
+  // ... existing code ...
+  openCalendarDialog();
+  //getHotelsByDate();
 }
 
 function closeSnackBar() {
@@ -251,7 +277,9 @@ function closeSnackBar() {
                   :items="sites.map((site) => site.name)"
                   label="Site Name"
                 ></v-autocomplete>
-                 <v-btn color="accent"  @click="addData(index)">Add</v-btn>
+
+
+                 <v-btn color="accent"  @click="addSite()">Add</v-btn>
               </v-col>
             </v-row>
 

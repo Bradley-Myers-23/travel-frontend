@@ -60,6 +60,11 @@ function navigateToEdit() {
     <v-card-text class="body-1">
       {{ trip.description }}
     </v-card-text>
+
+    <v-card-text class="body-2">
+      {{ trip.sites }}
+    </v-card-text>
+
     <v-expand-transition>
       <v-card-text class="pt-0" v-show="showDetails">
         <h3>calander</h3>
