@@ -28,7 +28,7 @@ const snackbar = ref({
 const newDay = ref({
   id: undefined,
   dayNumber: undefined,
-  descripton: undefined,
+  description: undefined,
   tripId: undefined,
   tripSite: [],
 });
@@ -257,7 +257,7 @@ function openEditSite(site) {
 function openAddDay() {
   newDay.value.id = undefined;
   newDay.value.dayNumber = undefined;
-  newDay.value.descripton = undefined;
+  newDay.value.description = undefined;
   newDay.value.tripSite = [];
   isAddDay.value = true;
 }
@@ -265,7 +265,7 @@ function openAddDay() {
 function openEditDay(day) {
   newDay.value.id = day.id;
   newDay.value.dayNumber = day.dayNumber;
-  newDay.value.descripton = day.description;
+  newDay.value.description = day.description;
   newDay.value.tripSite = day.tripSite;
   isEditDay.value = true;
 }
@@ -564,7 +564,7 @@ function addDays(date, days) {
           ></v-text-field>
 
           <v-textarea
-            v-model="newDay.descripton"
+            v-model="newDay.description"
             label="Description"
             required
           ></v-textarea>
