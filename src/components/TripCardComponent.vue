@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref, computed } from "vue";
 import { useRouter } from "vue-router";
+import tripSiteServices from "../services/tripSiteServices.js";
 
 const router = useRouter();
 
@@ -22,7 +23,7 @@ onMounted(async () => {
 });
 
 async function gettripSites() {
-  await tripSiteServices.gettripSitesFortrip(props.trip.id)
+  await tripSiteServices.getTripSitesForTrip(props.trip.id)
     .then((response) => {
       tripSites.value = response.data;
     })

@@ -12,11 +12,22 @@ const hotels = ref([]);
 const trip = ref({});
 const showCalendarDialog = ref(false);
 const selectedDates = ref([]);
+const isAddSite = ref(false);
+const selectedSite = ref({});
+
 
 const snackbar = ref({
   value: false,
   color: "",
   text: "",
+});
+
+
+const newSite = ref({
+  id: undefined,
+  quantity: undefined,
+  tripId: undefined,
+  siteId: undefined,
 });
 
 onMounted(async () => {
@@ -69,6 +80,16 @@ async function getHotels() {
       snackbar.value.value = true;
       snackbar.value.color = "error";
       snackbar.value.text = error.response.data.message;
+    });
+}
+
+async function getTripSites() {
+  await tripSiteServices.gettripSitesFortrip(route.params.id)
+    .then((response) => {
+      tripSites.value = response.data;
+    })
+    .catch((error) => {
+      console.log(error);
     });
 }
 
@@ -146,6 +167,10 @@ async function updateTrip() {
   await getTrip();
 }
 async function addSite() {
+  isAddSite.value = false;
+  newSite.value.tripId = trip.value.id;
+  newSite.value.tripId = selectedSite.value.id;
+  delete newSite.value.id;
   await SiteServices.updateSite(sites.value)
   .then(() => {
       snackbar.value.value = true;
