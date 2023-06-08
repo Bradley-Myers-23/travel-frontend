@@ -7,7 +7,15 @@ export default {
   getTripSitesForTrip(tripId) {
     return apiClient.get("trips/" + tripId + "/tripSites");
   },
-  
+  getTripSitesForTripStep(tripId, tripStepId) {
+    return apiClient.get(
+      "trips/" +
+        tripId +
+        "/tripSteps/" +
+        tripStepId +
+        "/tripSitesWithSites"
+    );
+  },
   getTripSite(tripSite) {
     return apiClient.get(
       "trips/" +

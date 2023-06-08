@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref, computed } from "vue";
 import { useRouter } from "vue-router";
-import tripSiteServices from "../services/tripSiteServices.js";
+import tripSiteServices from "../services/TripSiteServices.js";
 
 const router = useRouter();
 

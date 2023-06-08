@@ -4,6 +4,7 @@ import { ref } from "vue";
 import TripCard from "../components/TripCardComponent.vue";
 import TripServices from "../services/TripServices.js";
 import moment from "moment";
+import TripDayServices from "../services/TripDayServices";
 
 // import { useVuerify } from "vuetify";
 

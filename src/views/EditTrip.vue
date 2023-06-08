@@ -1,63 +1,81 @@
 <script setup>
+
 import { onMounted, ref, computed } from "vue";
 import { useRoute } from "vue-router";
-import DatePicker from "vue3-datepicker";
-import TripServices from "../services/TripServices";
-import HotelServices from "../services/HotelServices.js";
 import SiteServices from "../services/SiteServices.js";
+import TripSiteServices from "../services/TripSiteServices.js";
+import TripDayServices from "../services/TripDayServices.js";
+import TripServices from "../services/TripServices.js";
+import HotelServices from "../services/HotelServices.js";
 
-const sites = ref([]);
 const route = useRoute();
-const hotels = ref([]);
+
 const trip = ref({});
+const sites = ref([]);
+const selectedSite = ref({});
+const tripSites = ref([]);
+const tripDays = ref([]);
+const isAddSite = ref(false);
+const isEditSite = ref(false);
+const isAddDay = ref(false);
+const isEditDay = ref(false);
+const hotels = ref([]);
 const showCalendarDialog = ref(false);
 const selectedDates = ref([]);
-const isAddSite = ref(false);
-const selectedSite = ref({});
-//const day = ref('');
-
 const snackbar = ref({
   value: false,
   color: "",
   text: "",
 });
-
-
+const newDay = ref({
+  id: undefined,
+  dayNumber: undefined,
+  instruction: undefined,
+  tripId: undefined,
+  tripSite: [],
+});
 const newSite = ref({
   id: undefined,
   quantity: undefined,
   tripId: undefined,
+  tripDayId: undefined,
   siteId: undefined,
 });
 
 onMounted(async () => {
   await getTrip();
+  await getTripSites();
   await getHotels();
   await getSites();
+  await getTripDays();
 });
-// async function getHotelsByDate() {
-//   const start = new Date(trip.value.startDate);
-//   const end = new Date(trip.value.endDate);
-//   const dayCount = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
-//   hotels.value = Array.from({ length: dayCount }, () => ({}));
 
-//   const formattedStartDate = start.toISOString().substr(0, 10);
-//   const formattedEndDate = end.toISOString().substr(0, 10);
+async function getTrip() {
+  await TripServices.getTrip(route.params.id)
+    .then((response) => {
+      trip.value = response.data;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
 
-//   await HotelServices.getHotelsByDate(formattedStartDate, formattedEndDate)
-//     .then((response) => {
-//       const hotelsData = response.data;
-//       hotelsData.forEach((hotel, index) => {
-//         hotels.value[index] = { date: hotel.date, name: hotel.name };
-//       });
-//     })
-//     .catch((error) => {
-//       console.log(error);
-//       snackbar.value.value = true;
-//       snackbar.value.color = "error";
-//       snackbar.value.text = error.response.data.message;
-//     });
-// }
+async function updateTrip() {
+  await TripServices.updateTrip(trip.value.id, trip.value)
+    .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `${trip.value.name} updated successfully!`;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+  await getTrip();
+}
+
 async function getSites() {
   await SiteServices.getSites()
     .then((response) => {
@@ -70,21 +88,9 @@ async function getSites() {
       snackbar.value.text = error.response.data.message;
     });
 }
-async function getHotels() {
-  await HotelServices.getHotels()
-    .then((response) => {
-      hotels.value = response.data;
-    })
-    .catch((error) => {
-      console.log(error);
-      snackbar.value.value = true;
-      snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
-    });
-}
 
 async function getTripSites() {
-  await tripSiteServices.getTripSitesForTrip(route.params.id)
+  await TripSiteServices.getTripSitesForTrip(route.params.id)
     .then((response) => {
       tripSites.value = response.data;
     })
@@ -93,46 +99,201 @@ async function getTripSites() {
     });
 }
 
-const formattedStartDate = computed(() => {
-  if (trip.value.startDate) {
-    const date = new Date(trip.value.startDate);
-    return date.toISOString().substr(0, 10);
-  }
-  return null;
-});
-const formattedEndDate = computed(() => {
-  if (trip.value.endDate) {
-    const date = new Date(trip.value.endDate);
-    return date.toISOString().substr(0, 10);
-  }
-  return null;
-});
-
-const dateRange = computed(() => {
-  if (trip.value.startDate && trip.value.endDate) {
-    const start = new Date(trip.value.startDate);
-    const end = new Date(trip.value.endDate);
-    const dayCount = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
-    return Array.from({ length: dayCount }, (_, index) => {
-      const date = new Date(start);
-      date.setDate(date.getDate() + index);
-      return date.toISOString().substr(0, 10);
-    });
-  }
-  return [];
-});
-
-
-
-async function getTrip() {
-  await TripServices.getTrip(route.params.id)
-    .then((response) => {
-      trip.value = response.data;
+async function addSite() {
+  isAddSite.value = false;
+  newSite.value.tripId = trip.value.id;
+  newSite.value.siteId = selectedSite.value.id;
+  delete newSite.value.id;
+  await TripSiteServices.addTripSite(newSite.value)
+    .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `Site added successfully!`;
     })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+  await getTripSites();
+}
 
+async function updateSite() {
+  isEditSite.value = false;
+  newSite.value.tripId = trip.value.id;
+  newSite.value.siteId = selectedSite.value.id;
+  console.log(newSite);
+
+  await TripSiteServices.updateTripSite(newSite.value)
+    .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `${selectedSite.value.name} updated successfully!`;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+  await getTripSites();
+}
+
+async function deleteSite(site) {
+  await TripSiteServices.deleteTripSite(site)
+    .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `${site.site.name} deleted successfully!`;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+  await getTripSites();
+}
+
+async function checkUpdateSite() {
+  if (newDay.value.tripSite.length > 0) {
+    console.log(newDay.value.tripSite);
+    for (let i = 0; i < newDay.value.tripSite.length; i++) {
+      newSite.value.id = newDay.value.tripSite[i].id;
+      newSite.value.quantity = newDay.value.tripSite[i].quantity;
+      newSite.value.tripDayId = newDay.value.id;
+      selectedSite.value.id =
+        newDay.value.tripSite[i].siteId;
+      await updateSite();
+    }
+  }
+}
+
+async function getTripDays() {
+  await TripDayServices.getTripDaysForTripWithSites(
+    route.params.id
+  )
+    .then((response) => {
+      tripDays.value = response.data;
+    })
     .catch((error) => {
       console.log(error);
     });
+}
+
+async function addDay() {
+  isAddDay.value = false;
+  newDay.value.tripId = trip.value.id;
+  delete newDay.value.id;
+  await TripDayServices.addTripDay(newDay.value)
+    .then((data) => {
+      newDay.value.id = data.data.id;
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `Day added successfully!`;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+
+  await checkUpdateSite();
+
+  await getTripDays();
+}
+
+async function updateDay() {
+  isEditDay.value = false;
+  await TripDayServices.updateTripDay(newDay.value)
+    .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `Day updated successfully!`;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+
+  await checkUpdateSite();
+
+  await getTripDays();
+}
+
+async function deleteDay(day) {
+  await TripDayServices.deleteTripDay(day)
+    .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `Day deleted successfully!`;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+
+  await getTripDays();
+}
+
+function openAddSite() {
+  newSite.value.id = undefined;
+  newSite.value.quantity = undefined;
+  newSite.value.tripDayId = undefined;
+  newSite.value.siteId = undefined;
+  selectedSite.value = undefined;
+  isAddSite.value = true;
+}
+
+function openEditSite(site) {
+  newSite.value.id = site.id;
+  newSite.value.quantity = site.quantity;
+  newSite.value.tripDayId = site.tripDayId;
+  newSite.value.siteId = site.siteId;
+  selectedSite.value = site.site;
+  isEditSite.value = true;
+}
+
+function openAddDay() {
+  newDay.value.id = undefined;
+  newDay.value.dayNumber = undefined;
+  newDay.value.instruction = undefined;
+  newDay.value.tripSite = [];
+  isAddDay.value = true;
+}
+
+function openEditDay(day) {
+  newDay.value.id = day.id;
+  newDay.value.dayNumber = day.dayNumber;
+  newDay.value.instruction = day.instruction;
+  newDay.value.tripSite = day.tripSite;
+  isEditDay.value = true;
+}
+
+function closeAddSite() {
+  isAddSite.value = false;
+}
+
+function closeEditSite() {
+  isEditSite.value = false;
+}
+
+function closeAddDay() {
+  isAddDay.value = false;
+}
+
+function closeEditDay() {
+  isEditDay.value = false;
+}
+
+function closeSnackBar() {
+  snackbar.value.value = false;
 }
 
 function openCalendarDialog() {
@@ -150,12 +311,46 @@ function confirmDateRange() {
   //getHotelsByDate();
 }
 
-async function updateTrip() {
-  await TripServices.updateTrip(trip.value)
-    .then(() => {
-      snackbar.value.value = true;
-      snackbar.value.color = "green";
-      snackbar.value.text = `${trip.value.name} updated successfully!`;
+function planTrip() {
+  // ... existing code ...
+  openCalendarDialog();
+  //getHotelsByDate();
+}
+
+const dateRange = computed(() => {
+  if (trip.value.startDate && trip.value.endDate) {
+    const start = new Date(trip.value.startDate);
+    const end = new Date(trip.value.endDate);
+    const dayCount = Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1;
+    return Array.from({ length: dayCount }, (_, index) => {
+      const date = new Date(start);
+      date.setDate(date.getDate() + index);
+      return date.toISOString().substr(0, 10);
+    });
+  }
+  return [];
+});
+
+const formattedStartDate = computed(() => {
+  if (trip.value.startDate) {
+    const date = new Date(trip.value.startDate);
+    return date.toISOString().substr(0, 10);
+  }
+  return null;
+});
+
+const formattedEndDate = computed(() => {
+  if (trip.value.endDate) {
+    const date = new Date(trip.value.endDate);
+    return date.toISOString().substr(0, 10);
+  }
+  return null;
+});
+
+async function getHotels() {
+  await HotelServices.getHotels()
+    .then((response) => {
+      hotels.value = response.data;
     })
     .catch((error) => {
       console.log(error);
@@ -163,46 +358,6 @@ async function updateTrip() {
       snackbar.value.color = "error";
       snackbar.value.text = error.response.data.message;
     });
-  // getHotelsByDate();
-  await getTrip();
-}
-async function addSite() {
-  isAddSite.value = false;
-  newSite.value.tripId = trip.value.id;
-  newSite.value.tripId = selectedSite.value.id;
-  delete newSite.value.id;
-  await SiteServices.updateSite(sites.value)
-  .then(() => {
-      snackbar.value.value = true;
-      snackbar.value.color = "green";
-      snackbar.value.text = `${sites.value.value}  sites updated successfully!`;
-    })
-    .catch((error) => {
-      console.log(error);
-      snackbar.value.value = true;
-      snackbar.value.color = " site error";
-      snackbar.value.text = error.response.data.message;
-    });
-    await getSite();
-}
-async function getSite() {
-  await SiteServices.getSite(route.params.id)
-    .then((response) => {
-      sites.value = response.data;
-    })
-
-    .catch((error) => {
-      console.log(error);
-    });
-}
-function planTrip() {
-  // ... existing code ...
-  openCalendarDialog();
-  //getHotelsByDate();
-}
-
-function closeSnackBar() {
-  snackbar.value.value = false;
 }
 </script>
 
@@ -226,19 +381,22 @@ function closeSnackBar() {
                   label="Name"
                   required
                 ></v-text-field>
-
                 <v-text-field
-                  v-bind:value="formattedStartDate"
-                  v-model="trip.startDate"
-                  type="date"
-                  label="Start Date"
+                  v-model.number="trip.servings"
+                  label="Number of Servings"
+                  type="number"
                 ></v-text-field>
                 <v-text-field
-                  v-bind:value="formattedEndDate"
-                  v-model="trip.endDate"
-                  type="date"
-                  label="End Date"
+                  v-model.number="trip.time"
+                  label="Time to Make (in minutes)"
+                  type="number"
                 ></v-text-field>
+                <v-switch
+                  v-model="trip.isPublished"
+                  hide-details
+                  inset
+                  :label="`Publish? ${trip.isPublished ? 'Yes' : 'No'}`"
+                ></v-switch>
               </v-col>
               <v-col>
                 <v-textarea
@@ -253,9 +411,6 @@ function closeSnackBar() {
             <v-btn variant="flat" color="primary" @click="updateTrip()"
               >Update Trip</v-btn
             >
-            <v-btn variant="flat" color="primary" @click="planTrip()"
-              >Plan Trip</v-btn
-            >
             <v-spacer></v-spacer>
           </v-card-actions>
         </v-card>
@@ -263,65 +418,250 @@ function closeSnackBar() {
     </v-row>
     <v-row>
       <v-col>
-        <v-dialog v-model="showCalendarDialog">
-          <!-- ... -->
-          <v-card>
-            <v-card-text>
-              <DatePicker
-                v-model="selectedDates"
-                type="range"
-                input-class="v-text-field"
-                format="yyyy-MM-dd"
-                :model-value="selectedDates"
-              ></DatePicker>
-              <div v-if="dateRange.length">
-                <p>Selected Date Range:</p>
-                <ul>
-                  <li v-for="date in dateRange" :key="date">{{ date }}</li>
-                </ul>
-              </div>
-            </v-card-text>
-            <v-row v-for="(date, index) in dateRange" :key="index">
-              <v-col cols="4">
-                <v-text-field
-                v-model="day"
-                  :value="date"
-                  type="date"
-                  label="Date"
-                  readonly
-                ></v-text-field>
+        <v-card class="rounded-lg elevation-5">
+          <v-card-title
+            ><v-row align="center">
+              <v-col cols="10"
+                ><v-card-title class="headline">Sites </v-card-title>
               </v-col>
-              <v-col cols="8">
-                <v-autocomplete
-                  :items="hotels.map((hotel) => hotel.name)"
-                  label="Hotel Name"
-                ></v-autocomplete>
-                <v-autocomplete
-                  :items="sites.map((site) => site.name)"
-                  label="Site Name"
-                ></v-autocomplete>
-
-
-                 <v-btn color="accent"  @click="addSite()">Add</v-btn>
+              <v-col class="d-flex justify-end" cols="2">
+                <v-btn color="accent" @click="openAddSite()">Add</v-btn>
               </v-col>
             </v-row>
-
-            <v-card-actions>
-              
-              <v-btn @click="closeCalendarDialog">Cancel</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
+          </v-card-title>
+          <v-card-text>
+            <v-list>
+              <v-list-item
+                v-for="tripSite in tripSites"
+                :key="tripSite.id"
+              >
+                <b
+                  >{{ tripSite.quantity }}
+                  {{
+                    `${tripSite.site.unit}${
+                      tripSite.quantity > 1 ? "s" : ""
+                    }`
+                  }}</b
+                >
+                of {{ tripSite.site.name }} (${{
+                  tripSite.site.pricePerUnit
+                }}/{{ tripSite.site.unit }})
+                <template v-slot:append>
+                  <v-row>
+                    <v-icon
+                      class="mx-2"
+                      size="x-small"
+                      icon="mdi-pencil"
+                      @click="openEditSite(tripSite)"
+                    ></v-icon>
+                    <v-icon
+                      class="mx-2"
+                      size="x-small"
+                      icon="mdi-trash-can"
+                      @click="deleteSite(tripSite)"
+                    ></v-icon>
+                  </v-row>
+                </template>
+              </v-list-item>
+            </v-list>
+          </v-card-text>
+        </v-card>
       </v-col>
     </v-row>
+    <v-row>
+      <v-col>
+        <v-card class="rounded-lg elevation-5">
+          <v-card-title
+            ><v-row align="center">
+              <v-col cols="10"
+                ><v-card-title class="headline">Days </v-card-title>
+              </v-col>
+              <v-col class="d-flex justify-end" cols="2">
+                <v-btn color="accent" @click="openAddDay()">Add</v-btn>
+              </v-col>
+            </v-row>
+          </v-card-title>
+          <v-card-text>
+            <v-table>
+              <tbody>
+                <tr v-for="day in tripDays" :key="day.id">
+                  <td>{{ day.dayNumber }}</td>
+                  <td>{{ day.instruction }}</td>
+                  <td>
+                    <v-chip
+                      size="small"
+                      v-for="site in day.tripSite"
+                      :key="site.id"
+                      pill
+                      >{{ site.site.name }}</v-chip
+                    >
+                  </td>
+                  <td>
+                    <v-icon
+                      size="x-small"
+                      icon="mdi-pencil"
+                      @click="openEditDay(day)"
+                    ></v-icon>
+                  </td>
+                  <td>
+                    <v-icon
+                      size="x-small"
+                      icon="mdi-trash-can"
+                      @click="deleteDay(day)"
+                    >
+                    </v-icon>
+                  </td>
+                </tr>
+              </tbody>
+            </v-table>
+          </v-card-text> </v-card
+      ></v-col>
+    </v-row>
 
+    <v-dialog
+      persistent
+      :model-value="isAddSite || isEditSite"
+      width="800"
+    >
+      <v-card class="rounded-lg elevation-5">
+        <v-card-title class="headline mb-2">{{
+          isAddSite
+            ? "Add Site"
+            : isEditSite
+            ? "Edit Site"
+            : ""
+        }}</v-card-title>
+        <v-card-text>
+          <v-row>
+            <v-col cols="3">
+              <v-text-field
+                v-model="newSite.quantity"
+                label="Quantity"
+                type="number"
+                required
+              >
+              </v-text-field>
+            </v-col>
+
+            <v-col>
+              <v-select
+                v-model="selectedSite"
+                :items="sites"
+                item-title="name"
+                item-value="unit"
+                label="Sites"
+                return-object
+                required
+              >
+                <template v-slot:prepend>
+                  {{
+                    `${
+                      selectedSite && selectedSite.unit
+                        ? selectedSite.unit
+                        : ""
+                    }${newSite.quantity > 1 ? "s" : ""}`
+                  }}
+                  of
+                </template>
+              </v-select>
+            </v-col>
+          </v-row>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            variant="flat"
+            color="secondary"
+            @click="
+              isAddSite
+                ? closeAddSite()
+                : isEditSite
+                ? closeEditSite()
+                : false
+            "
+            >Close</v-btn
+          >
+          <v-btn
+            variant="flat"
+            color="primary"
+            @click="
+              isAddSite
+                ? addSite()
+                : isEditSite
+                ? updateSite()
+                : false
+            "
+            >{{
+              isAddSite
+                ? "Add Site"
+                : isEditSite
+                ? "Update Site"
+                : ""
+            }}</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
+    <v-dialog persistent :model-value="isAddDay || isEditDay" width="800">
+      <v-card class="rounded-lg elevation-5">
+        <v-card-title class="headline mb-2">
+          {{ isAddDay ? "Add Day" : isEditDay ? "Edit Day" : "" }}
+        </v-card-title>
+        <v-card-text>
+          <v-text-field
+            v-model="newDay.dayNumber"
+            label="Number"
+            type="number"
+            required
+          ></v-text-field>
+
+          <v-textarea
+            v-model="newDay.instruction"
+            label="Instruction"
+            required
+          ></v-textarea>
+
+          <v-select
+            v-model="newDay.tripSite"
+            :items="tripSites"
+            item-title="site.name"
+            item-value="id"
+            label="Sites"
+            return-object
+            multiple
+            chips
+            required
+          ></v-select>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            variant="flat"
+            color="secondary"
+            @click="
+              isAddDay ? closeAddDay() : isEditDay ? closeEditDay() : false
+            "
+            >Close</v-btn
+          >
+          <v-btn
+            variant="flat"
+            color="primary"
+            @click="isAddDay ? addDay() : isEditDay ? updateDay() : false"
+            >{{
+              isAddDay ? "Add Day" : isEditDay ? "Update Day" : ""
+            }}</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     <v-snackbar v-model="snackbar.value" rounded="pill">
       {{ snackbar.text }}
 
       <template v-slot:actions>
-        <v-btn :color="snackbar.color" variant="text" @click="closeSnackBar()"
-          >Close</v-btn
-        >
+        <v-btn :color="snackbar.color" variant="text" @click="closeSnackBar()">
+          Close
+        </v-btn>
       </template>
     </v-snackbar>
   </v-container>
