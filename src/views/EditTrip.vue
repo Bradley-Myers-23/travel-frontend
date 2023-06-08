@@ -299,7 +299,7 @@ function closeSnackBar() {
                 ></v-autocomplete>
                 <v-autocomplete
                 v-model="day"
-                  :items="sites.map((site) => site.name)"
+                  :items="$ref.map((site) => site.name)"
                   label="Site Name"
                 ></v-autocomplete>
 
