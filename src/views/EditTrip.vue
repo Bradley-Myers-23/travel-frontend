@@ -14,7 +14,7 @@ const showCalendarDialog = ref(false);
 const selectedDates = ref([]);
 const isAddSite = ref(false);
 const selectedSite = ref({});
-
+//const day = ref('');
 
 const snackbar = ref({
   value: false,
@@ -299,7 +299,7 @@ function closeSnackBar() {
                 ></v-autocomplete>
                 <v-autocomplete
                 v-model="day"
-                  :items="$ref.map((site) => site.name)"
+                  :items="sites.map((site) => site.name)"
                   label="Site Name"
                 ></v-autocomplete>
 
