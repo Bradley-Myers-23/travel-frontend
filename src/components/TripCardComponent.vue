@@ -16,13 +16,20 @@ const props = defineProps({
 });
 
 onMounted(async () => {
-  
+  gettripSites();
 
   user.value = JSON.parse(localStorage.getItem("user"));
 });
 
-
-
+async function gettripSites() {
+  await tripSiteServices.gettripSitesFortrip(props.trip.id)
+    .then((response) => {
+      tripSites.value = response.data;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
 
 function navigateToEdit() {
   router.push({ name: "editTrip", params: { id: props.trip.id } });
@@ -62,7 +69,21 @@ function navigateToEdit() {
     </v-card-text>
 
     <v-card-text class="body-2">
-      {{ trip.sites }}
+      <h3>Sites</h3>
+        <v-list>
+          <v-list-item
+            v-for="tripSite in tripSites"
+            :key="tripSite.id"
+          >
+            <b
+              >{{ tripSite.quantity }}
+              {{
+                `${tripSite.site.name}`
+              }}</b
+            >
+            of {{ tripSite.site.address }} 
+          </v-list-item>
+        </v-list>
     </v-card-text>
 
     <v-expand-transition>
