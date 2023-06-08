@@ -40,9 +40,9 @@
 </template>
 
 <script>
-
 export default {
   name: "upload-image",
+  props: ["newSite"],
   data() {
     return {
         currentImage: undefined,
@@ -55,11 +55,13 @@ export default {
     };
   },
   methods: {
-    selectImage() {
+    async selectImage() {
         this.currentImage = this.$refs.file.files.item(0);
         this.previewImage = URL.createObjectURL(this.currentImage);
         this.progress = 0;
         this.message = "";
+        this.newSite.picture = Buffer.from(await this.currentImage.arrayBuffer(), "base64").toString('base64');
+        console.log(this.newSite.picture);
     },
     upload() {
       this.progress = 0;

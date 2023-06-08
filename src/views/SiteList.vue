@@ -18,7 +18,7 @@ const newSite = ref({
   name: undefined,
   address: undefined,
   description: undefined,
-  picture: undefined,
+  picture: "",
 });
 
 onMounted(async () => {
@@ -27,9 +27,17 @@ onMounted(async () => {
 });
 
 async function getSites() {
+  function siteConvert(site){
+    if(site.picture != null){
+      //console.log(site.picture);
+    }
+    return site;
+  }
+
   await SiteServices.getSites()
     .then((response) => {
       sites.value = response.data;
+      sites.value = sites.value.map(siteConvert);
     })
     .catch((error) => {
       console.log(error);
@@ -60,7 +68,6 @@ async function addSite() {
 async function updateSite() {
   isEdit.value = false;
   await SiteServices.updateSite(newSite.value)
-  await UploadImage.upload()
     .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
@@ -103,6 +110,7 @@ function closeEdit() {
 function closeSnackBar() {
   snackbar.value.value = false;
 }
+
 </script>
 
 <template>
@@ -136,7 +144,11 @@ function closeSnackBar() {
             <td>{{ item.name }}</td>
             <td>{{ item.address }}</td>
             <td>{{ item.description }}</td>
-            <td>{{ item.picture }}</td>
+            <td>
+              <div style="max-height:auto; max-width:100%; width: auto;">
+                <img v-if="item.picture !== null" v-bind:src="'data:image/jpeg;base64,'+item.picture" style='height: 300px; width: auto; object-fit:cover'/>
+              </div>
+            </td>
             <td>
               <v-icon
                 size="small"
@@ -172,6 +184,7 @@ function closeSnackBar() {
               required
             ></v-text-field>
             <upload-image
+              :newSite="newSite"
               v-model="newSite.picture"
               label="Picture"
               ref="img"

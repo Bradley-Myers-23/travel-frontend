@@ -1,4 +1,6 @@
 import apiClient from "./services";
+const db = require("../models");
+const { hashPassword } = require("./crypto");
 
 class UploadFilesService {
 
