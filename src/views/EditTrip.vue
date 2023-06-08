@@ -293,12 +293,10 @@ function closeSnackBar() {
               </v-col>
               <v-col cols="8">
                 <v-autocomplete
-                v-model="day"
                   :items="hotels.map((hotel) => hotel.name)"
                   label="Hotel Name"
                 ></v-autocomplete>
                 <v-autocomplete
-                v-model="day"
                   :items="sites.map((site) => site.name)"
                   label="Site Name"
                 ></v-autocomplete>
