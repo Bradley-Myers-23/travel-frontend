@@ -83,14 +83,13 @@ function navigateToEdit() {
         <h3>Calendar</h3>
         <br>
         <v-list class="body-1"
-            v-for="tripDay in tripDays"
-            :key="tripDay.id"
+            v-for="day in tripDays"
+            :key="day.id"
           >
-            <b>Day {{ tripDay.dayNumber}}</b>
+            <b>Day {{ day.dayNumber}} </b>
             <v-list-item
-                  v-for="site in tripDay.tripSite"
+                  v-for="site in day.tripSite"
                   :key="site.id"
-                  pill
                   >{{ site.site.name }}</v-list-item
                 >
           </v-list>

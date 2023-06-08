@@ -455,7 +455,7 @@ function addDays(date, days) {
                   <td>
                     <v-chip
                       size="small"
-                      v-for="site in day.tripSites"
+                      v-for="site in day.tripSite"
                       :key="site.id"
                       pill
                       >{{ site.site.name }}</v-chip
