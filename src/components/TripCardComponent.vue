@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref, computed } from "vue";
 import { useRouter } from "vue-router";
+import UserServices from "../services/UserServices";
 
 const router = useRouter();
 
@@ -63,7 +64,10 @@ function navigateToEdit() {
     <v-expand-transition>
       <v-card-text class="pt-0" v-show="showDetails">
         <h3>calander</h3>
-       
+        <br> 
+        <h3>Travellers Per Trip</h3>
+        <h4> {{trip.name}}</h4>
+        <h4> {{UserServices.getUser.value}}</h4>
       </v-card-text>
     </v-expand-transition>
   </v-card>
