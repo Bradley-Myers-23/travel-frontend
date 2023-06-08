@@ -10,6 +10,10 @@ export default {
   addDay(day) {
     return apiClient.post("days", day);
   },
+  gethotelforDay(id) {
+    return apiClient.get("/days/trip/"+ id);
+  },
+  
   updateDay(day) {
     return apiClient.put("days/" + day.id, day);
   },
