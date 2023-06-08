@@ -8,6 +8,7 @@ const router = useRouter();
 const showDetails = ref(false);
 const tripSites = ref([]);
 const user = ref(null);
+const tripDate = ref([]);
 
 const props = defineProps({
   trip: {
@@ -70,7 +71,16 @@ function navigateToEdit() {
     <v-expand-transition>
       <v-card-text class="pt-0" v-show="showDetails">
         <h3>Calendar</h3>
-        <br>
+        <v-row v-for="(date, index) in dateRange" :key="index">
+              <v-col cols="4">
+                <v-text-field
+                  :value="date"
+                  type="date"
+                  label="Date"
+                  readonly
+                ></v-text-field>
+              </v-col>
+              </v-row>
         <h3>Sites</h3>
         <v-list>
           <v-list-item

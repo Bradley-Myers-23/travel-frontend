@@ -5,6 +5,7 @@ import DatePicker from "vue3-datepicker";
 import TripServices from "../services/TripServices";
 import HotelServices from "../services/HotelServices.js";
 import SiteServices from "../services/SiteServices.js";
+import TripSiteServices from "../services/tripSiteServices.js";
 
 const sites = ref([]);
 const route = useRoute();
@@ -169,21 +170,21 @@ async function updateTrip() {
 async function addSite() {
   isAddSite.value = false;
   newSite.value.tripId = trip.value.id;
-  newSite.value.tripId = selectedSite.value.id;
+  newSite.value.siteId = selectedSite.value.id;
   delete newSite.value.id;
-  await SiteServices.updateSite(sites.value)
-  .then(() => {
+  await TripSiteServices.addTripSite(newSite.value)
+    .then(() => {
       snackbar.value.value = true;
       snackbar.value.color = "green";
-      snackbar.value.text = `${sites.value.value}  sites updated successfully!`;
+      snackbar.value.text = `Ingredient added successfully!`;
     })
     .catch((error) => {
       console.log(error);
       snackbar.value.value = true;
-      snackbar.value.color = " site error";
+      snackbar.value.color = "error";
       snackbar.value.text = error.response.data.message;
     });
-    await getSite();
+  await getRecipeIngredients();
 }
 async function getSite() {
   await SiteServices.getSite(route.params.id)
@@ -296,7 +297,7 @@ function closeSnackBar() {
                   :items="hotels.map((hotel) => hotel.name)"
                   label="Hotel Name"
                 ></v-autocomplete>
-                <v-autocomplete
+                <v-autocomplete 
                   :items="sites.map((site) => site.name)"
                   label="Site Name"
                 ></v-autocomplete>
