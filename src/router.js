@@ -34,6 +34,12 @@ const router = createRouter({
       name: "days",
       component: () => import("./views/DayList.vue"),
     },
+
+    {
+      path: "/userTrips",
+      name: "userTrips",
+      component: () => import("./views/UserTrip.vue"),
+    },
   ],
 });
 
