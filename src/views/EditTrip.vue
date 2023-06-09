@@ -7,19 +7,24 @@ import TripSiteServices from "../services/TripSiteServices.js";
 import TripDayServices from "../services/TripDayServices.js";
 import TripServices from "../services/TripServices.js";
 import HotelServices from "../services/HotelServices.js";
+import HotelDayServices from "../services/HotelDayServices.js";
 
 const route = useRoute();
 
 const trip = ref({});
 const sites = ref([]);
+const hotels = ref([]);
 const selectedSite = ref({});
+const selectedHotel = ref({});
+const hotelDays = ref([]);
 const tripSites = ref([]);
 const tripDays = ref([]);
+const isAddHotel = ref(false);
+const isEditHotel = ref(false);
 const isAddSite = ref(false);
 const isEditSite = ref(false);
 const isAddDay = ref(false);
 const isEditDay = ref(false);
-const hotels = ref([]);
 const snackbar = ref({
   value: false,
   color: "",
@@ -37,6 +42,12 @@ const newSite = ref({
   tripId: undefined,
   tripDayId: undefined,
   siteId: undefined,
+});
+const newHotel = ref({
+  id: undefined,
+  tripId: undefined,
+  tripDayId: undefined,
+  hotelId: undefined,
 });
 
 onMounted(async () => {
@@ -71,6 +82,99 @@ async function updateTrip() {
       snackbar.value.text = error.response.data.message;
     });
   await getTrip();
+}
+
+async function getHotels() {
+  await HotelServices.getHotels()
+    .then((response) => {
+      hotels.value = response.data;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+}
+
+async function getHotelDays() {
+  await HotelDayServices.getHotelDaysForTrip(route.params.id)
+    .then((response) => {
+      hotelDays.value = response.data;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+}
+
+async function addHotel() {
+  isAddHotel.value = false;
+  newHotel.value.tripId = trip.value.id;
+  newHotel.value.hotelId = selectedHotel.value.id;
+  delete newHotel.value.id;
+  await HotelDayServices.addHotelDay(newHotel.value)
+    .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `Hotel added successfully!`;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+  await getHotelDays();
+}
+
+async function updateHotel() {
+  isEditHotel.value = false;
+  newHotel.value.tripId = trip.value.id;
+  newHotel.value.hotelId = selectedHotel.value.id;
+  console.log(newHotel);
+
+  await HotelDayServices.updateHotelDay(newHotel.value)
+    .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `${selectedHotel.value.name} updated successfully!`;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+  await getHotelDays();
+}
+
+async function deleteHotel(hotel) {
+  await HotelDayServices.deleteHotelDay(hotel)
+    .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `${hotel.hotel.name} deleted successfully!`;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+  await getHotelDays();
+}
+
+async function checkUpdateHotel() {
+  if (newDay.value.hotelDay.length > 0) {
+    console.log(newDay.value.hotelDay);
+    for (let i = 0; i < newDay.value.hotelDay.length; i++) {
+      newHotel.value.id = newDay.value.hotelDay[i].id;
+      newHotel.value.tripDayId = newDay.value.id;
+      selectedHotel.value.id =
+        newDay.value.hotelDay[i].hotelId;
+      await updateHotel();
+    }
+  }
 }
 
 async function getSites() {
@@ -197,6 +301,7 @@ async function addDay() {
     });
 
   await checkUpdateSite();
+  await checkUpdateHotel();
 
   await getTripDays();
 }
@@ -217,6 +322,7 @@ async function updateDay() {
     });
 
   await checkUpdateSite();
+  await checkUpdateHotel();
 
   await getTripDays();
 }
@@ -236,6 +342,22 @@ async function deleteDay(day) {
     });
 
   await getTripDays();
+}
+
+function openAddHotel() {
+  newHotel.value.id = undefined;
+  newHotel.value.tripDayId = undefined;
+  newHotel.value.hotelId = undefined;
+  selectedHotel.value = undefined;
+  isAddHotel.value = true;
+}
+
+function openEditHotel(hotel) {
+  newHotel.value.id = hotel.id;
+  newHotel.value.tripDayId = hotel.tripDayId;
+  newHotel.value.hotelId = hotel.hotelId;
+  selectedHotel.value = hotel.hotel;
+  isEditHotel.value = true;
 }
 
 function openAddSite() {
@@ -268,6 +390,14 @@ function openEditDay(day) {
   newDay.value.description = day.description;
   newDay.value.tripSite = day.tripSite;
   isEditDay.value = true;
+}
+
+function closeAddHotel() {
+  isAddHotel.value = false;
+}
+
+function closeEditHotel() {
+  isEditHotel.value = false;
 }
 
 function closeAddSite() {
@@ -319,19 +449,6 @@ const formattedEndDate = computed(() => {
   }
   return null;
 });
-
-async function getHotels() {
-  await HotelServices.getHotels()
-    .then((response) => {
-      hotels.value = response.data;
-    })
-    .catch((error) => {
-      console.log(error);
-      snackbar.value.value = true;
-      snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
-    });
-}
 
 function addDays(date, days) {
   var result = new Date(date);
@@ -389,6 +506,48 @@ function addDays(date, days) {
             >
             <v-spacer></v-spacer>
           </v-card-actions>
+        </v-card>
+      </v-col>
+    </v-row>
+    <v-row>
+      <v-col>
+        <v-card class="rounded-lg elevation-5">
+          <v-card-title
+            ><v-row align="center">
+              <v-col cols="10"
+                ><v-card-title class="headline">Hotels </v-card-title>
+              </v-col>
+              <v-col class="d-flex justify-end" cols="2">
+                <v-btn color="accent" @click="openAddHotel()">Add</v-btn>
+              </v-col>
+            </v-row>
+          </v-card-title>
+          <v-card-text>
+            <v-list>
+              <v-list-item
+                v-for="hotelDay in hotelDays"
+                :key="hotelDay.id"
+              >
+                <b>{{ hotelDay.hotel.name }} </b>
+                <template v-slot:append>
+                  <v-row>
+                    <v-icon
+                      class="mx-2"
+                      size="x-small"
+                      icon="mdi-pencil"
+                      @click="openEditHotel(hotelDay)"
+                    ></v-icon>
+                    <v-icon
+                      class="mx-2"
+                      size="x-small"
+                      icon="mdi-trash-can"
+                      @click="deleteHotel(hotelDay)"
+                    ></v-icon>
+                  </v-row>
+                </template>
+              </v-list-item>
+            </v-list>
+          </v-card-text>
         </v-card>
       </v-col>
     </v-row>
@@ -482,6 +641,73 @@ function addDays(date, days) {
           </v-card-text> </v-card
       ></v-col>
     </v-row>
+
+    <v-dialog
+      persistent
+      :model-value="isAddHotel || isEditHotel"
+      width="800"
+    >
+      <v-card class="rounded-lg elevation-5">
+        <v-card-title class="headline mb-2">{{
+          isAddHotel
+            ? "Add Hotel"
+            : isEditHotel
+            ? "Edit Hotel"
+            : ""
+        }}</v-card-title>
+        <v-card-text>
+          <v-row>
+            <v-col>
+              <v-select
+                v-model="selectedHotel"
+                :items="hotels"
+                item-title="name"
+                item-value="unit"
+                label="Hotels"
+                return-object
+                required
+              >
+                <template v-slot:prepend>
+                </template>
+              </v-select>
+            </v-col>
+          </v-row>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            variant="flat"
+            color="secondary"
+            @click="
+              isAddHotel
+                ? closeAddHotel()
+                : isEditHotel
+                ? closeEditHotel()
+                : false
+            "
+            >Close</v-btn
+          >
+          <v-btn
+            variant="flat"
+            color="primary"
+            @click="
+              isAddHotel
+                ? addHotel()
+                : isEditHotel
+                ? updateHotel()
+                : false
+            "
+            >{{
+              isAddHotel
+                ? "Add Hotel"
+                : isEditHotel
+                ? "Update Hotel"
+                : ""
+            }}</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
     <v-dialog
       persistent
