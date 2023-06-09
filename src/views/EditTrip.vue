@@ -36,6 +36,7 @@ const newDay = ref({
   description: undefined,
   tripId: undefined,
   tripSite: [],
+  hotelDay: undefined,
 });
 const newSite = ref({
   id: undefined,
@@ -54,6 +55,7 @@ onMounted(async () => {
   await getTrip();
   await getTripSites();
   await getHotels();
+  await getHotelDays();
   await getSites();
   await getTripDays();
 });
@@ -165,16 +167,11 @@ async function deleteHotel(hotel) {
 }
 
 async function checkUpdateHotel() {
-  if (newDay.value.hotelDay.length > 0) {
-    console.log(newDay.value.hotelDay);
-    for (let i = 0; i < newDay.value.hotelDay.length; i++) {
-      newHotel.value.id = newDay.value.hotelDay[i].id;
-      newHotel.value.tripDayId = newDay.value.id;
-      selectedHotel.value.id =
-        newDay.value.hotelDay[i].hotelId;
-      await updateHotel();
-    }
-  }
+  newHotel.value.id = newDay.value.hotelDay.id;
+  newHotel.value.tripDayId = newDay.value.id;
+  selectedHotel.value.id =
+    newDay.value.hotelDay.hotelId;
+  await updateHotel();
 }
 
 async function getSites() {
@@ -224,7 +221,6 @@ async function updateSite() {
   isEditSite.value = false;
   newSite.value.tripId = trip.value.id;
   newSite.value.siteId = selectedSite.value.id;
-  console.log(newSite);
 
   await TripSiteServices.updateTripSite(newSite.value)
     .then(() => {
@@ -271,7 +267,7 @@ async function checkUpdateSite() {
 }
 
 async function getTripDays() {
-  await TripDayServices.getTripDaysForTripWithSites(
+  await TripDayServices.getTripDaysForTripWithData(
     route.params.id
   )
     .then((response) => {
@@ -381,6 +377,7 @@ function openAddDay() {
   newDay.value.dayNumber = undefined;
   newDay.value.description = undefined;
   newDay.value.tripSite = [];
+  newDay.value.hotelDay = [];
   isAddDay.value = true;
 }
 
@@ -389,6 +386,7 @@ function openEditDay(day) {
   newDay.value.dayNumber = day.dayNumber;
   newDay.value.description = day.description;
   newDay.value.tripSite = day.tripSite;
+  newDay.value.hotelDay = day.hotelDay;
   isEditDay.value = true;
 }
 
@@ -450,7 +448,7 @@ const formattedEndDate = computed(() => {
   return null;
 });
 
-function addDays(date, days) {
+function editDates(date, days) {
   var result = new Date(date);
   result.setDate(result.getDate() + days);
   return result.toISOString().slice(0, 10);;
@@ -609,8 +607,22 @@ function addDays(date, days) {
           <v-card-text>
             <v-table>
               <tbody>
+                <tr>
+                  <td>Day Number</td>
+                  <td>Hotel</td>
+                  <td>Sites</td>
+                </tr>
                 <tr v-for="day in tripDays" :key="day.id">
-                  <td>Day {{ day.dayNumber }}: {{ addDays(trip.startDate, day.dayNumber-1)  }}</td>
+                  <td>Day {{ day.dayNumber }}: {{ editDates(trip.startDate, day.dayNumber-1)  }}</td>
+                  <td>
+                    <v-chip
+                      size="small"
+                      v-for="hotel in day.hotelDay"
+                      :key="hotel.id"
+                      pill
+                      >{{ hotel.hotel.name }}</v-chip
+                    ><br>
+                  </td>
                   <td>
                     <v-chip
                       size="small"
@@ -621,19 +633,20 @@ function addDays(date, days) {
                     ><br>
                   </td>
                   <td>
-                    <v-icon
-                      size="x-small"
-                      icon="mdi-pencil"
-                      @click="openEditDay(day)"
-                    ></v-icon>
-                  </td>
-                  <td>
-                    <v-icon
-                      size="x-small"
-                      icon="mdi-trash-can"
-                      @click="deleteDay(day)"
-                    >
-                    </v-icon>
+                    <v-row>
+                      <v-icon
+                        class="mx-2"
+                        size="x-small"
+                        icon="mdi-pencil"
+                        @click="openEditDay(day)"
+                      ></v-icon>
+                      <v-icon
+                        class="mx-2"
+                        size="x-small"
+                        icon="mdi-trash-can"
+                        @click="deleteDay(day)"
+                      ></v-icon>
+                    </v-row>
                   </td>
                 </tr>
               </tbody>
@@ -662,7 +675,6 @@ function addDays(date, days) {
                 v-model="selectedHotel"
                 :items="hotels"
                 item-title="name"
-                item-value="unit"
                 label="Hotels"
                 return-object
                 required
@@ -729,7 +741,6 @@ function addDays(date, days) {
                 v-model="selectedSite"
                 :items="sites"
                 item-title="name"
-                item-value="unit"
                 label="Sites"
                 return-object
                 required
@@ -794,6 +805,18 @@ function addDays(date, days) {
             label="Description"
             required
           ></v-textarea>
+
+          <v-select
+            v-model="newDay.hotelDay"
+            :items="hotelDays"
+            item-title="hotel.name"
+            item-value="id"
+            label="Hotel"
+            return-object
+            single
+            chips
+            required
+          ></v-select>
 
           <v-select
             v-model="newDay.tripSite"

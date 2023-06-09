@@ -7,8 +7,8 @@ export default {
   getTripDaysForTrip(tripId) {
     return apiClient.get("trips/" + tripId + "/tripDays");
   },
-  getTripDaysForTripWithSites(tripId) {
-    return apiClient.get("trips/" + tripId + "/tripDaysWithSites");
+  getTripDaysForTripWithData(tripId) {
+    return apiClient.get("trips/" + tripId + "/tripDaysWithData");
   },
   getTripDay(tripDay) {
     return apiClient.get(

@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref, computed } from "vue";
 import { useRouter } from "vue-router";
+import hotelDayServices from "../services/HotelDayServices.js";
 import tripSiteServices from "../services/TripSiteServices.js";
 import tripDayServices from "../services/TripDayServices.js";
 import UserServices from "../services/UserServices";
@@ -9,6 +10,7 @@ import UserTripServices from "../services/UserTripServices";
 const router = useRouter();
 
 const showDetails = ref(false);
+const hotelDays = ref([]);
 const tripSites = ref([]);
 const tripDays = ref([]);
 const addUser = ref(false);
