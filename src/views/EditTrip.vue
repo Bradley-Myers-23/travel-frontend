@@ -7,6 +7,7 @@ import TripSiteServices from "../services/TripSiteServices.js";
 import TripDayServices from "../services/TripDayServices.js";
 import TripServices from "../services/TripServices.js";
 import HotelServices from "../services/HotelServices.js";
+import DayServices from "../services/DayServices.js";
 
 const route = useRoute();
 
@@ -20,6 +21,16 @@ const isEditSite = ref(false);
 const isAddDay = ref(false);
 const isEditDay = ref(false);
 const hotels = ref([]);
+const selectedHotel = ref();
+const hotelday = ref([]);
+const hotelInfo = ref({});
+const hotel = ref([]);
+const hotelNameData = ref([]);
+const showCalendarDialog = ref(false);
+const selectedDates = ref([]);
+const isAddHotel = ref(false);
+const hotelsForDay = ref({});
+
 const snackbar = ref({
   value: false,
   color: "",
@@ -31,6 +42,7 @@ const newDay = ref({
   description: undefined,
   tripId: undefined,
   tripSite: [],
+  hotelId: undefined,
 });
 const newSite = ref({
   id: undefined,
@@ -45,6 +57,8 @@ onMounted(async () => {
   await getHotels();
   await getSites();
   await getTripDays();
+  await getHotel();
+  await getHotelInfoByDate();
 });
 
 async function getTrip() {
@@ -73,6 +87,98 @@ async function updateTrip() {
   await getTrip();
 }
 
+//   await HotelServices.getHotelsByDate(formattedStartDate, formattedEndDate)
+//     .then((response) => {
+//       const hotelsData = response.data;
+//       hotelsData.forEach((hotel, index) => {
+//         hotels.value[index] = { date: hotel.date, name: hotel.name };
+//       });
+//     })
+//     .catch((error) => {
+//       console.log(error);
+//       snackbar.value.value = true;
+//       snackbar.value.color = "error";
+//       snackbar.value.text = error.response.data.message;
+//     });
+// }
+
+async function getHotelForDate(date) {
+  const proposedDate = moment(date).format("YYYY-MM-DD") + "T00:00:00.000Z";
+  await getHotel(); // Wait for the hotelsForDay to be fetched
+  if (hotelsForDay.value?.length > 0) {
+    hotelday.value = hotelsForDay.value.find(
+      (item) => item.day === proposedDate
+    );
+    return hotelday.value ? hotelday.value.hotel : null;
+  }
+  return null;
+}
+
+async function getHotelInfoByDate() {
+  for (const date of dateRange.value) {
+    hotel.value = await getHotelForDate(date);
+    hotelInfo.value[date] = hotel.value;
+  }
+  return hotelInfo;
+}
+
+// function hotelsForDayFilter(data) {
+//   const localTime = moment(data).format("YYYY-MM-DD"); // store localTime
+//   const proposedDate = `${moment(data).format("YYYY-MM-DD")}T00:00:00.000Z`;
+//   hotelName = hotelsForDay.value.filter(
+//     (item) => item.date === proposedDate
+//   )[0];
+
+// }
+
+function addHotelEachDay(index) {
+  newDay.value.id = undefined;
+  newDay.value.day = dateRange.value[index];
+  newDay.value.tripId = trip.value.id;
+  isAddHotel.value = true;
+}
+function closeAddHotel() {
+  isAddHotel.value = false;
+}
+async function getHotel() {
+  await DayServices.gethotelforDay(trip.value.id)
+    .then((response) => {
+      hotelsForDay.value = response.data;
+
+      // for (const data of hotelsForDay.value) {
+      //   // var localTime = moment(date).format("YYYY-MM-DD"); // store localTime
+      //   // var proposedDate = localTime + "T00:00:00.000Z";
+
+      //   hotelNameData.value.push({ date: data.day, name: data.hotel.name });
+      // }
+      //const hotelsForDay = data.file;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+}
+
+async function addHotelDay() {
+  isAddHotel.value = false;
+  newDay.value.hotelId = selectedHotel.value.id;
+
+  delete newDay.id;
+  await DayServices.addDay(newDay.value)
+    .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `${newDay.value.day} added successfully!`;
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+}
 async function getSites() {
   await SiteServices.getSites()
     .then((response) => {
