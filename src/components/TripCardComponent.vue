@@ -295,9 +295,10 @@ function closeSiteDetails() {
           <v-table class="rounded-lg elevation-5">
         <thead>
           <tr>
-            <th class="text-left">Name</th>
-            <th class="text-left">Address</th>
-            <th class="text-left">Description</th>
+            <th class="text-center">Name</th>
+            <th class="text-center">Address</th>
+            <th class="text-center">Description</th>
+            <th class="text-center">Image</th>
           </tr>
         </thead>
         <tbody>
@@ -305,6 +306,10 @@ function closeSiteDetails() {
             <td>{{ selectedSite.name }}</td>
             <td>{{ selectedSite.address }}</td>
             <td>{{ selectedSite.description }}</td>
+            <td>
+                <img v-if="selectedSite.picture !== null" v-bind:src="'data:image/jpeg;base64,'+selectedSite.picture" 
+                style="text-align: center;margin-left: 25%;width: 50%;"/>
+            </td>
           </tr>
         </tbody>
       </v-table>
