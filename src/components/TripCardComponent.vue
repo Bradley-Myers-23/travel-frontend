@@ -143,6 +143,18 @@ function openSiteDetails(site) {
 function closeSiteDetails() {
   isViewSite.value = false;
 }
+
+function isValidURL(url) {
+  const pattern = /^(https?:\/\/)?([\w.]+)\.([a-z]{2,6}\.?)(\/[\w.]*)*\/?$/i;
+  return pattern.test(url);
+}
+
+function formatURL(url) {
+  if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    return `http://${url}`;
+  }
+  return url;
+}
 </script>
 
 <template>
@@ -251,6 +263,7 @@ function closeSiteDetails() {
             <th class="text-left">Name</th>
             <th class="text-left">Phone Number</th>
             <th class="text-left">Address</th>
+            <th class="text-left">Website</th>
           </tr>
         </thead>
           <tbody
@@ -266,6 +279,12 @@ function closeSiteDetails() {
                   <br />
                   <span>{{ selectedHotel.State }}, {{ selectedHotel.City }} , {{ selectedHotel.ZipCode }} </span>
                 </div>
+              </td>
+              <td>
+                <a v-if="isValidURL(selectedHotel.Link)" :href="formatURL(selectedHotel.Link)" target="_blank">
+                {{ selectedHotel.Link }}
+               </a>
+               <span v-else>{{ selectedHotel.Link }}</span>
               </td>
             </tr>
           </tbody>
