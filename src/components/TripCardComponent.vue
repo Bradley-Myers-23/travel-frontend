@@ -317,15 +317,15 @@ function formatURL(url) {
             <th class="text-center">Name</th>
             <th class="text-center">Address</th>
             <th class="text-center">Description</th>
-            <th class="text-center">Image</th>
+            <th v-if="selectedSite.picture !== null" class="text-center">Image</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>{{ selectedSite.name }}</td>
-            <td>{{ selectedSite.address }}</td>
-            <td>{{ selectedSite.description }}</td>
-            <td>
+            <td class="text-center">{{ selectedSite.name }}</td>
+            <td class="text-center">{{ selectedSite.address }}</td>
+            <td class="text-center">{{ selectedSite.description }}</td>
+            <td v-if="selectedSite.picture !== null">
                 <img v-if="selectedSite.picture !== null" v-bind:src="'data:image/jpeg;base64,'+selectedSite.picture" 
                 style="text-align: center;margin-left: 25%;width: 50%;"/>
             </td>

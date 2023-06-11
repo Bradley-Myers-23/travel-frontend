@@ -8,7 +8,7 @@ const sites = ref([]);
 const isAdd = ref(false);
 const isEdit = ref(false);
 const user = ref(null);
-const snackbar = ref({
+const alertbar = ref({
   value: false,
   color: "",
   text: "",
@@ -41,9 +41,9 @@ async function getSites() {
     })
     .catch((error) => {
       console.log(error);
-      snackbar.value.value = true;
-      snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      alertbar.value.value = true;
+      alertbar.value.color = "error";
+      alertbar.value.text = error.response.data.message;
     });
 }
 
@@ -52,15 +52,15 @@ async function addSite() {
   delete newSite.id;
   await SiteServices.addSite(newSite.value)
     .then(() => {
-      snackbar.value.value = true;
-      snackbar.value.color = "green";
-      snackbar.value.text = `${newSite.value.name} added successfully!`;
+      alertbar.value.value = true;
+      alertbar.value.color = "green";
+      alertbar.value.text = `${newSite.value.name} added successfully!`;
     })
     .catch((error) => {
       console.log(error);
-      snackbar.value.value = true;
-      snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      alertbar.value.value = true;
+      alertbar.value.color = "error";
+      alertbar.value.text = error.response.data.message;
     });
   await getSites();
 }
@@ -69,15 +69,15 @@ async function updateSite() {
   isEdit.value = false;
   await SiteServices.updateSite(newSite.value)
     .then(() => {
-      snackbar.value.value = true;
-      snackbar.value.color = "green";
-      snackbar.value.text = `${newSite.name} updated successfully!`;
+      alertbar.value.value = true;
+      alertbar.value.color = "green";
+      alertbar.value.text = `${newSite.name} updated successfully!`;
     })
     .catch((error) => {
       console.log(error);
-      snackbar.value.value = true;
-      snackbar.value.color = "error";
-      snackbar.value.text = error.response.data.message;
+      alertbar.value.value = true;
+      alertbar.value.color = "error";
+      alertbar.value.text = error.response.data.message;
     });
   await getSites();
 }
@@ -107,8 +107,8 @@ function closeEdit() {
   isEdit.value = false;
 }
 
-function closeSnackBar() {
-  snackbar.value.value = false;
+function closealertbar() {
+  alertbar.value.value = false;
 }
 
 </script>
@@ -211,19 +211,19 @@ function closeSnackBar() {
           </v-card-actions>
         </v-card>
       </v-dialog>
-      <v-snackbar v-model="snackbar.value" rounded="pill">
-        {{ snackbar.text }}
+      <v-alertbar v-model="alertbar.value" rounded="pill">
+        {{ alertbar.text }}
 
         <template v-slot:actions>
           <v-btn
-            :color="snackbar.color"
+            :color="alertbar.color"
             variant="text"
-            @click="closeSnackBar()"
+            @click="closealertbar()"
           >
             Close
           </v-btn>
         </template>
-      </v-snackbar>
+      </v-alertbar>
     </div>
   </v-container>
 </template>
