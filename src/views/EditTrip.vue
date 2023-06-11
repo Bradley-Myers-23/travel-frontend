@@ -63,7 +63,7 @@ onMounted(async () => {
 async function getTrip() {
   await TripServices.getTrip(route.params.id)
     .then((response) => {
-      trip.value = response.data;
+      trip.value = response.data[0];
     })
     .catch((error) => {
       console.log(error);
