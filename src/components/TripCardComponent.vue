@@ -19,7 +19,6 @@ const userTrip = ref({
   tripId: undefined,
   userId: undefined,
   headCount: undefined
-
 });
 
 const snackbar = ref({
@@ -106,9 +105,11 @@ async  function addUserToTable(user) {
 
   await UserTripServices.addUserTrip( userTrip)
     .then(() => {
+      
       snackbar.value.value = true;
       snackbar.value.color = "green";
       snackbar.value.text = `User for Trip added successfully!`;
+      this.closeDialog();
     })
     .catch((error) => {
       console.log(error);
@@ -116,7 +117,8 @@ async  function addUserToTable(user) {
       snackbar.value.color = "error";
       snackbar.value.text = error.response.data.message;
     });
-  
+
+
 }
 
 
