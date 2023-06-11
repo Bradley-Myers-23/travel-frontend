@@ -11,13 +11,15 @@ const router = useRouter();
 
 const selectedSite = ref({});
 const selectedHotel = ref({});
+const selectedUser = ref({});
 const isViewHotel = ref(false);
 const isViewSite = ref(false);
+const isViewUser = ref(false);
 const showDetails = ref(false);
 const hotelDays = ref([]);
 const tripSites = ref([]);
 const tripDays = ref([]);
-const addUser = ref(false);
+const isAddUser = ref(false);
 const users = ref([]);
 const user = ref(null);
 const userTrips = ref([]);
@@ -99,38 +101,43 @@ async function getUsers() {
     });
 }
 
+
 function navigateToEdit() {
-  router.push({ name: "editTrip", params: { id: props.trip.id } });
-}
-function openAdd() {
-  addUser.value = true;
+  route.push({ name: "editTrip", params: { id: props.trip.id } });
 }
 
-
-function closeDialog() {
-  this.addUser = false;
-}
-
-function selectUser(user) {
-  this.selectedUser = user;
-}
-
-async function addUserToTable(user) {
+async function addUserToTrip(user) {
   userTrip.value.userId = user.id;
   userTrip.value.tripId = props.trip.id;
   userTrip.value.headCount = 1;
   userTrip.userId = user.id;
   userTrip.tripId = props.trip.id;
   userTrip.headCount = 1;
-
+  isAddUser.value = false;
 
   await UserTripServices.addUserTrip( userTrip)
     .then(() => {
-      
       snackbar.value.value = true;
       snackbar.value.color = "green";
       snackbar.value.text = `User for Trip added successfully!`;
-      this.closeDialog();
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+  await getUserTrips();
+  await getUsers();
+}
+
+async function removeUserFromTrip(user) {
+  isViewUser.value = false;
+  await UserTripServices.deleteUserTrip(user)
+    .then(() => {
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `User for Trip removed successfully!`;
     })
     .catch((error) => {
       console.log(error);
@@ -139,6 +146,8 @@ async function addUserToTable(user) {
       snackbar.value.text = error.response.data.message;
     });
 
+  await getUserTrips();
+  await getUsers();
 }
 
 function editDates(date, days) {
@@ -155,6 +164,23 @@ function formatPhoneNumber(phoneNumber) {
   
   // Format the phone number as "(123) 456-7890"
   return `(${areaCode}) ${firstPart}-${secondPart}`;
+}
+
+function openAddUser() {
+  isAddUser.value = true;
+}
+
+function closeAddUser() {
+  isAddUser.value = false;
+}
+
+function openUserDetails(user) {
+  selectedUser.value = user.user;
+  isViewUser.value = true;
+}
+
+function closeUserDetails() {
+  isViewUser.value = false;
 }
 
 function openHotelDetails(hotel) {
@@ -191,7 +217,7 @@ function formatURL(url) {
 <template>
   <v-card
     class="rounded-lg elevation-5 mb-8"
-    @click="showDetails = (!isViewHotel && !isViewSite) ? !showDetails : showDetails"
+    @click="showDetails = (!isViewHotel && !isViewSite && !isViewUser && !isAddUser) ? !showDetails : showDetails"
   >
     <v-card-title class="headline">
       <v-row align="center">
@@ -204,17 +230,20 @@ function formatURL(url) {
             {{ trip.endDate.slice(0,10) }} 
           </v-chip>
         </v-col>
-        <v-col class="d-flex justify-end">
+        <v-col class="d-flex justify-left">
           <v-icon
             v-if="user !== null"
             size="small"
             icon="mdi-pencil"
             @click="navigateToEdit()"
           ></v-icon>
-         
-          <v-btn v-if="user !== null" color="accent" @click="openAdd()"
-            >Add Traveller</v-btn>
-          </v-col>
+          <v-icon
+            v-if="user !== null"
+            size="small"
+            icon="mdi-account"
+            @click="openAddUser()"
+          ></v-icon>
+        </v-col>
       </v-row>
     </v-card-title>
     <v-card-text class="body-1">
@@ -224,22 +253,18 @@ function formatURL(url) {
       <v-card-text class="pt-0" v-show="showDetails">
         <h3>Travellers On This Trip </h3>
  
-        <v-list>
-          <v-list-item
-            v-for="userTrip in userTrips"
-            :key="userTrip.id"
+        <v-chip
+          size="small"
+          v-for="userTrip in userTrips"
+          :key="userTrip.id"
+          pill
+          @click="openUserDetails(userTrip)"
           >
-           
-            <v-col cols = 2>
-              {{ userTrip.user.firstName }}
-              {{ " \xa0 "}}
-              {{ userTrip.user.lastName }}
-              </v-col>
-            
+            {{ userTrip.user.firstName }} 
+            {{ userTrip.user.lastName }}
+        </v-chip>
 
-          </v-list-item>
-        </v-list>
-
+        <br><br>
         <h3>Calendar</h3>
         <br>
         <v-table>
@@ -376,31 +401,85 @@ function formatURL(url) {
       </v-card>
     </v-dialog>
 
-  <v-dialog v-model="addUser">
-      
-    <v-card>
+    <v-dialog
+      persistent
+      :model-value="isViewUser"
+      width="800"
+    >
+      <v-card class="rounded-lg elevation-5">
+        <v-card-title class="headline mb-2">
+          User Details
+        </v-card-title>
+        <v-card-text>
+          <v-table class="rounded-lg elevation-5">
+        <thead>
+          <tr>
+            <th class="text-left">Name</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-left">{{ selectedUser.firstName }} {{ selectedUser.lastName }}</td>
+            <td>
+              <v-icon
+                class="mx-2"
+                size="x-small"
+                icon="mdi-trash-can"
+                @click="removeUserFromTrip(selectedUser)"
+              ></v-icon>
+            </td>
+          </tr>
+        </tbody>
+      </v-table>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            variant="flat"
+            color="secondary"
+            @click="closeUserDetails()"
+            >Close</v-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
 
-<v-list>
-  <v-list-item v-for="user in users" :key="user.id" @click="selectUser(user)">
-    <v-row align="center">
-      <v-col cols="6">
-        <v-list-item-content>
-          <v-list-item-title>{{ user.firstName }} {{ user.lastName }}</v-list-item-title>
-        </v-list-item-content>
-      </v-col>
-      <v-col cols="6">
-        <v-list-item-action>
-          <v-btn text @click="addUserToTable(user)">Add</v-btn>
-        </v-list-item-action>
-      </v-col>
-    </v-row>
-  </v-list-item>
-</v-list>
-
-<v-card-actions class="d-flex justify-end">
-  <v-btn color="accent" text @click="closeDialog()">Close</v-btn>
-</v-card-actions>
-</v-card>       
+    <v-dialog
+      persistent
+      :model-value="isAddUser"
+      width="800"
+    >
+    <v-card class="rounded-lg elevation-5">
+        <v-card-title class="headline mb-2">
+          Add Users
+        </v-card-title>
+        <v-card-text>
+          <v-row>
+            <v-col>
+              <v-list>
+                <v-list-item v-for="user in users" :key="user.id" @click="addUserToTrip(user)">
+                  <v-row align="center">
+                    <v-col cols="6">
+                      <v-list-item-content>
+                        <v-list-item-title>{{ user.firstName }} {{ user.lastName }}</v-list-item-title>
+                      </v-list-item-content>
+                    </v-col>
+                  </v-row>
+                </v-list-item>
+              </v-list>
+            </v-col>
+          </v-row>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            variant="flat"
+            color="secondary"
+            @click="closeAddUser()"
+            >Close</v-btn
+          >
+        </v-card-actions>
+      </v-card>
     </v-dialog>
     
 </template>
