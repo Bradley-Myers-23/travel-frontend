@@ -103,7 +103,7 @@ async function getUsers() {
 
 
 function navigateToEdit() {
-  route.push({ name: "editTrip", params: { id: props.trip.id } });
+  router.push({ name: "editTrip", params: { id: props.trip.id } });
 }
 
 async function addUserToTrip(user) {
@@ -229,6 +229,9 @@ function formatURL(url) {
           <v-chip class="ma-2" color="accent" label>
             {{ trip.endDate.slice(0,10) }} 
           </v-chip>
+          <v-chip class="ma-2" label>
+            Last Updated: {{ trip.updatedAt}} 
+          </v-chip>
         </v-col>
         <v-col class="d-flex justify-left">
           <v-icon
@@ -299,11 +302,6 @@ function formatURL(url) {
             </tr>
           </tbody>
         </v-table>
-        <h4>Last Updated 
-            <v-chip class="ma-2" color="primary" label>
-            {{ trip.updatedAt}} 
-          </v-chip>
-        </h4>
       </v-card-text>
       
     </v-expand-transition>
