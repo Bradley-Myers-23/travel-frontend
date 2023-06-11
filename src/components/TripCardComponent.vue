@@ -134,6 +134,7 @@ async function addUserToTrip(user) {
 
 async function removeUserFromTrip(user) {
   isViewUser.value = false;
+  
   await UserTripServices.deleteUserTrip(user)
     .then(() => {
       snackbar.value.value = true;
@@ -177,6 +178,7 @@ function closeAddUser() {
 
 function openUserDetails(user) {
   selectedUser.value = user.user;
+  selectedUser.value.id = user.id;
   isViewUser.value = true;
 }
 
