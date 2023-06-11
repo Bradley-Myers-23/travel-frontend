@@ -123,7 +123,7 @@ function closeSnackBar() {
           </v-card-title>
         </v-col>
         <v-col class="d-flex justify-end" cols="2">
-          <v-btn v-if="user !== null" color="accent" @click="openAdd()"
+          <v-btn v-if="user !== null && user.userType == 'Admin'" color="accent" @click="openAdd()"
             >Add</v-btn
           >
         </v-col>
@@ -146,7 +146,7 @@ function closeSnackBar() {
             <td>{{ item.description }}</td>
             <td>
               <div style="max-height:auto; max-width:100%; width: auto;">
-                <img v-if="item.picture !== null" v-bind:src="'data:image/jpeg;base64,'+item.picture" style='height: 300px; width: auto; object-fit:cover'/>
+                <img v-if="item.picture !== null" v-bind:src="'data:image/jpeg;base64,'+item.picture" style="height: 300px; width: auto; object-fit:cover"/>
               </div>
             </td>
             <td>

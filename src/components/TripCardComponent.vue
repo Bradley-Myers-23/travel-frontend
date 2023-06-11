@@ -47,6 +47,7 @@ onMounted(async () => {
   await getUserTrips();
   await getUsers();
   user.value = JSON.parse(localStorage.getItem("user"));
+  console.log(user.value);
 });
 
 async function getHotelDays() {
@@ -235,7 +236,7 @@ function formatURL(url) {
         </v-col>
         <v-col class="d-flex justify-left">
           <v-icon
-            v-if="user !== null"
+            v-if="user !== null && user.userType == 'Admin'"
             size="small"
             icon="mdi-pencil"
             @click="navigateToEdit()"
@@ -425,6 +426,7 @@ function formatURL(url) {
             <td class="text-left">{{ selectedUser.firstName }} {{ selectedUser.lastName }}</td>
             <td>
               <v-icon
+                v-if="user !== null && user.userType == 'Admin'"
                 class="mx-2"
                 size="x-small"
                 icon="mdi-trash-can"
@@ -460,7 +462,16 @@ function formatURL(url) {
           <v-row>
             <v-col>
               <v-list>
-                <v-list-item v-for="user in users" :key="user.id" @click="addUserToTrip(user)">
+                <v-list-item v-if="user !== null && user.userType == 'Admin'" v-for="user in users" :key="user.id" @click="addUserToTrip(user)">
+                  <v-row align="center">
+                    <v-col cols="6">
+                      <v-list-item-content>
+                        <v-list-item-title>{{ user.firstName }} {{ user.lastName }}</v-list-item-title>
+                      </v-list-item-content>
+                    </v-col>
+                  </v-row>
+                </v-list-item>
+                <v-list-item v-if="user !== null && user.userType !== 'Admin'" @click="addUserToTrip(user)">
                   <v-row align="center">
                     <v-col cols="6">
                       <v-list-item-content>
