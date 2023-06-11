@@ -6,7 +6,7 @@ import UserServices from "../services/UserServices.js";
 
 const router = useRouter();
 const isCreateAccount = ref(false);
-const alertbar = ref({
+const snackbar = ref({
   value: false,
   color: "",
   text: "",
@@ -31,16 +31,16 @@ function navigateToTrips() {
 async function createAccount() {
   await UserServices.addUser(user.value)
     .then(() => {
-      alertbar.value.value = true;
-      alertbar.value.color = "green";
-      alertbar.value.text = "Account created successfully!";
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = "Account created successfully!";
       router.push({ name: "login" });
     })
     .catch((error) => {
       console.log(error);
-      alertbar.value.value = true;
-      alertbar.value.color = "error";
-      alertbar.value.text = error.response.data.message;
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
     });
 }
 
@@ -49,16 +49,16 @@ async function login() {
   await UserServices.loginUser(user)
     .then((data) => {
       window.localStorage.setItem("user", JSON.stringify(data.data));
-      alertbar.value.value = true;
-      alertbar.value.color = "green";
-      alertbar.value.text = "Login successful!";
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = "Login successful!";
       router.push({ name: "trips" });
     })
     .catch((error) => {
       console.log(error);
-      alertbar.value.value = true;
-      alertbar.value.color = "error";
-      alertbar.value.text = error.response.data.message;
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
     });
 }
 
@@ -70,8 +70,8 @@ function closeCreateAccount() {
   isCreateAccount.value = false;
 }
 
-function closealertbar() {
-  alertbar.value.value = false;
+function closeSnackBar() {
+  snackbar.value.value = false;
 }
 </script>
 
@@ -147,19 +147,19 @@ function closealertbar() {
         </v-card>
       </v-dialog>
 
-      <v-alertbar v-model="alertbar.value" rounded="pill">
-        {{ alertbar.text }}
+      <v-snackbar v-model="snackbar.value" rounded="pill">
+        {{ snackbar.text }}
 
         <template v-slot:actions>
           <v-btn
-            :color="alertbar.color"
+            :color="snackbar.color"
             variant="text"
-            @click="closealertbar()"
+            @click="closeSnackBar()"
           >
             Close
           </v-btn>
         </template>
-      </v-alertbar>
+      </v-snackbar>
     </div>
   </v-container>
 </template>

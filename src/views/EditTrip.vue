@@ -25,7 +25,7 @@ const isAddSite = ref(false);
 const isEditSite = ref(false);
 const isAddDay = ref(false);
 const isEditDay = ref(false);
-const alertbar = ref({
+const snackbar = ref({
   value: false,
   color: "",
   text: "",
@@ -73,15 +73,15 @@ async function getTrip() {
 async function updateTrip() {
   await TripServices.updateTrip(trip.value.id, trip.value)
     .then(() => {
-      alertbar.value.value = true;
-      alertbar.value.color = "green";
-      alertbar.value.text = `${trip.value.name} updated successfully!`;
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `${trip.value.name} updated successfully!`;
     })
     .catch((error) => {
       console.log(error);
-      alertbar.value.value = true;
-      alertbar.value.color = "error";
-      alertbar.value.text = error.response.data.message;
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
     });
   await getTrip();
 }
@@ -93,9 +93,9 @@ async function getHotels() {
     })
     .catch((error) => {
       console.log(error);
-      alertbar.value.value = true;
-      alertbar.value.color = "error";
-      alertbar.value.text = error.response.data.message;
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
     });
 }
 
@@ -116,15 +116,15 @@ async function addHotel() {
   delete newHotel.value.id;
   await HotelDayServices.addHotelDay(newHotel.value)
     .then(() => {
-      alertbar.value.value = true;
-      alertbar.value.color = "green";
-      alertbar.value.text = `Hotel added successfully!`;
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `Hotel added successfully!`;
     })
     .catch((error) => {
       console.log(error);
-      alertbar.value.value = true;
-      alertbar.value.color = "error";
-      alertbar.value.text = error.response.data.message;
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
     });
   await getHotelDays();
 }
@@ -137,15 +137,15 @@ async function updateHotel() {
 
   await HotelDayServices.updateHotelDay(newHotel.value)
     .then(() => {
-      alertbar.value.value = true;
-      alertbar.value.color = "green";
-      alertbar.value.text = `${selectedHotel.value.name} updated successfully!`;
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `${selectedHotel.value.name} updated successfully!`;
     })
     .catch((error) => {
       console.log(error);
-      alertbar.value.value = true;
-      alertbar.value.color = "error";
-      alertbar.value.text = error.response.data.message;
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
     });
   await getHotelDays();
 }
@@ -153,15 +153,15 @@ async function updateHotel() {
 async function deleteHotel(hotel) {
   await HotelDayServices.deleteHotelDay(hotel)
     .then(() => {
-      alertbar.value.value = true;
-      alertbar.value.color = "green";
-      alertbar.value.text = `${hotel.hotel.name} deleted successfully!`;
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `${hotel.hotel.name} deleted successfully!`;
     })
     .catch((error) => {
       console.log(error);
-      alertbar.value.value = true;
-      alertbar.value.color = "error";
-      alertbar.value.text = error.response.data.message;
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
     });
   await getHotelDays();
 }
@@ -181,9 +181,9 @@ async function getSites() {
     })
     .catch((error) => {
       console.log(error);
-      alertbar.value.value = true;
-      alertbar.value.color = "error";
-      alertbar.value.text = error.response.data.message;
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
     });
 }
 
@@ -204,15 +204,15 @@ async function addSite() {
   delete newSite.value.id;
   await TripSiteServices.addTripSite(newSite.value)
     .then(() => {
-      alertbar.value.value = true;
-      alertbar.value.color = "green";
-      alertbar.value.text = `Site added successfully!`;
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `Site added successfully!`;
     })
     .catch((error) => {
       console.log(error);
-      alertbar.value.value = true;
-      alertbar.value.color = "error";
-      alertbar.value.text = error.response.data.message;
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
     });
   await getTripSites();
 }
@@ -224,15 +224,15 @@ async function updateSite() {
 
   await TripSiteServices.updateTripSite(newSite.value)
     .then(() => {
-      alertbar.value.value = true;
-      alertbar.value.color = "green";
-      alertbar.value.text = `${selectedSite.value.name} updated successfully!`;
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `${selectedSite.value.name} updated successfully!`;
     })
     .catch((error) => {
       console.log(error);
-      alertbar.value.value = true;
-      alertbar.value.color = "error";
-      alertbar.value.text = error.response.data.message;
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
     });
   await getTripSites();
 }
@@ -240,15 +240,15 @@ async function updateSite() {
 async function deleteSite(site) {
   await TripSiteServices.deleteTripSite(site)
     .then(() => {
-      alertbar.value.value = true;
-      alertbar.value.color = "green";
-      alertbar.value.text = `${site.site.name} deleted successfully!`;
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `${site.site.name} deleted successfully!`;
     })
     .catch((error) => {
       console.log(error);
-      alertbar.value.value = true;
-      alertbar.value.color = "error";
-      alertbar.value.text = error.response.data.message;
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
     });
   await getTripSites();
 }
@@ -285,15 +285,15 @@ async function addDay() {
   await TripDayServices.addTripDay(newDay.value)
     .then((data) => {
       newDay.value.id = data.data.id;
-      alertbar.value.value = true;
-      alertbar.value.color = "green";
-      alertbar.value.text = `Day added successfully!`;
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `Day added successfully!`;
     })
     .catch((error) => {
       console.log(error);
-      alertbar.value.value = true;
-      alertbar.value.value.color = "error";
-      alertbar.value.text = error.response.data.message;
+      snackbar.value.value = true;
+      snackbar.value.value.color = "error";
+      snackbar.value.text = error.response.data.message;
     });
 
   await checkUpdateSite();
@@ -306,15 +306,15 @@ async function updateDay() {
   isEditDay.value = false;
   await TripDayServices.updateTripDay(newDay.value)
     .then(() => {
-      alertbar.value.value = true;
-      alertbar.value.color = "green";
-      alertbar.value.text = `Day updated successfully!`;
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `Day updated successfully!`;
     })
     .catch((error) => {
       console.log(error);
-      alertbar.value.value = true;
-      alertbar.value.color = "error";
-      alertbar.value.text = error.response.data.message;
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
     });
 
   await checkUpdateSite();
@@ -326,15 +326,15 @@ async function updateDay() {
 async function deleteDay(day) {
   await TripDayServices.deleteTripDay(day)
     .then(() => {
-      alertbar.value.value = true;
-      alertbar.value.color = "green";
-      alertbar.value.text = `Day deleted successfully!`;
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `Day deleted successfully!`;
     })
     .catch((error) => {
       console.log(error);
-      alertbar.value.value = true;
-      alertbar.value.color = "error";
-      alertbar.value.text = error.response.data.message;
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
     });
 
   await getTripDays();
@@ -414,8 +414,8 @@ function closeEditDay() {
   isEditDay.value = false;
 }
 
-function closealertbar() {
-  alertbar.value.value = false;
+function closeSnackBar() {
+  snackbar.value.value = false;
 }
 
 const dateRange = computed(() => {
@@ -851,14 +851,14 @@ function editDates(date, days) {
         </v-card-actions>
       </v-card>
     </v-dialog>
-    <v-alertbar v-model="alertbar.value" rounded="pill">
-      {{ alertbar.text }}
+    <v-snackbar v-model="snackbar.value" rounded="pill">
+      {{ snackbar.text }}
 
       <template v-slot:actions>
-        <v-btn :color="alertbar.color" variant="text" @click="closealertbar()">
+        <v-btn :color="snackbar.color" variant="text" @click="closeSnackBar()">
           Close
         </v-btn>
       </template>
-    </v-alertbar>
+    </v-snackbar>
   </v-container>
 </template>
