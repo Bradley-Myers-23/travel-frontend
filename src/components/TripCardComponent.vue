@@ -243,6 +243,11 @@ function formatURL(url) {
             </tr>
           </tbody>
         </v-table>
+        <h4>Last Updated 
+            <v-chip class="ma-2" color="primary" label>
+            {{ trip.updatedAt}} 
+          </v-chip>
+        </h4>
       </v-card-text>
       
     </v-expand-transition>
