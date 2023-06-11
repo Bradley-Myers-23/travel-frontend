@@ -21,6 +21,17 @@ const addUser = ref(false);
 const users = ref([]);
 const user = ref(null);
 const userTrips = ref([]);
+const userTrip = ref({
+  tripId: undefined,
+  userId: undefined,
+  headCount: undefined
+});
+
+const snackbar = ref({
+  value: false,
+  color: "",
+  text: "",
+});
 const props = defineProps({
   trip: {
     required: true,
@@ -105,9 +116,29 @@ function selectUser(user) {
 }
 
 async function addUserToTable(user) {
-  const userId = user.id;
-  const tripId = props.trip.id;
-  await addUserToTrip(userId, tripId);
+  userTrip.value.userId = user.id;
+  userTrip.value.tripId = props.trip.id;
+  userTrip.value.headCount = 1;
+  userTrip.userId = user.id;
+  userTrip.tripId = props.trip.id;
+  userTrip.headCount = 1;
+
+
+  await UserTripServices.addUserTrip( userTrip)
+    .then(() => {
+      
+      snackbar.value.value = true;
+      snackbar.value.color = "green";
+      snackbar.value.text = `User for Trip added successfully!`;
+      this.closeDialog();
+    })
+    .catch((error) => {
+      console.log(error);
+      snackbar.value.value = true;
+      snackbar.value.color = "error";
+      snackbar.value.text = error.response.data.message;
+    });
+
 }
 
 function editDates(date, days) {
@@ -182,7 +213,7 @@ function formatURL(url) {
           ></v-icon>
          
           <v-btn v-if="user !== null" color="accent" @click="openAdd()"
-            >Add User</v-btn>
+            >Add Traveller</v-btn>
           </v-col>
       </v-row>
     </v-card-title>
@@ -347,22 +378,29 @@ function formatURL(url) {
 
   <v-dialog v-model="addUser">
       
-      <v-card>             
-        <v-list>               
-          <v-list-item v-for="user in users" :key="user.id" @click="selectUser(user)">
-          <v-list-item-content>
-            <v-list-item-title>{{ user.firstName }} {{ user.lastName }}</v-list-item-title>
-          </v-list-item-content>
-          <v-list-item-action>
-            <v-btn text @click="addUserToTable(user)">Add</v-btn>
-          </v-list-item-action>
-        </v-list-item>       
-        </v-list>             
-        <v-card-actions>     
-          
-        <v-btn color ="accent"  text @click="closeDialog()">Close</v-btn>             
-        </v-card-actions>          
-     </v-card>         
+    <v-card>
+
+<v-list>
+  <v-list-item v-for="user in users" :key="user.id" @click="selectUser(user)">
+    <v-row align="center">
+      <v-col cols="6">
+        <v-list-item-content>
+          <v-list-item-title>{{ user.firstName }} {{ user.lastName }}</v-list-item-title>
+        </v-list-item-content>
+      </v-col>
+      <v-col cols="6">
+        <v-list-item-action>
+          <v-btn text @click="addUserToTable(user)">Add</v-btn>
+        </v-list-item-action>
+      </v-col>
+    </v-row>
+  </v-list-item>
+</v-list>
+
+<v-card-actions class="d-flex justify-end">
+  <v-btn color="accent" text @click="closeDialog()">Close</v-btn>
+</v-card-actions>
+</v-card>       
     </v-dialog>
     
 </template>
