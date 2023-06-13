@@ -2,6 +2,7 @@
 import { onMounted } from "vue";
 import { ref } from "vue";
 import SiteServices from "../services/SiteServices.js";
+import UploadImage from "../components/UploadImage.vue"
 
 const sites = ref([]);
 const isAdd = ref(false);
@@ -17,6 +18,7 @@ const newSite = ref({
   name: undefined,
   address: undefined,
   description: undefined,
+  picture: "",
 });
 
 onMounted(async () => {
@@ -25,9 +27,17 @@ onMounted(async () => {
 });
 
 async function getSites() {
+  function siteConvert(site){
+    if(site.picture != null){
+      //console.log(site.picture);
+    }
+    return site;
+  }
+
   await SiteServices.getSites()
     .then((response) => {
       sites.value = response.data;
+      sites.value = sites.value.map(siteConvert);
     })
     .catch((error) => {
       console.log(error);
@@ -76,6 +86,7 @@ function openAdd() {
   newSite.value.name = undefined;
   newSite.value.address = undefined;
   newSite.value.description = undefined;
+  newSite.value.picture = undefined;
   isAdd.value = true;
 }
 
@@ -88,6 +99,7 @@ function openEdit(item) {
   newSite.value.name = item.name;
   newSite.value.address = item.address;
   newSite.value.description = item.description;
+  newSite.value.picture = item.picture;
   isEdit.value = true;
 }
 
@@ -98,6 +110,7 @@ function closeEdit() {
 function closeSnackBar() {
   snackbar.value.value = false;
 }
+
 </script>
 
 <template>
@@ -110,7 +123,7 @@ function closeSnackBar() {
           </v-card-title>
         </v-col>
         <v-col class="d-flex justify-end" cols="2">
-          <v-btn v-if="user !== null" color="accent" @click="openAdd()"
+          <v-btn v-if="user !== null && user.userType == 'Admin'" color="accent" @click="openAdd()"
             >Add</v-btn
           >
         </v-col>
@@ -122,6 +135,7 @@ function closeSnackBar() {
             <th class="text-left">Name</th>
             <th class="text-left">Address</th>
             <th class="text-left">Description</th>
+            <th class="text-left">Image</th>
             <th class="text-left">Actions</th>
           </tr>
         </thead>
@@ -130,6 +144,11 @@ function closeSnackBar() {
             <td>{{ item.name }}</td>
             <td>{{ item.address }}</td>
             <td>{{ item.description }}</td>
+            <td>
+              <div style="max-height:auto; max-width:100%; width: auto;">
+                <img v-if="item.picture !== null" v-bind:src="'data:image/jpeg;base64,'+item.picture" style="height: 300px; width: auto; object-fit:cover"/>
+              </div>
+            </td>
             <td>
               <v-icon
                 size="small"
@@ -164,6 +183,12 @@ function closeSnackBar() {
               label="Description"
               required
             ></v-text-field>
+            <upload-image
+              :newSite="newSite"
+              v-model="newSite.picture"
+              label="Picture"
+              ref="img"
+            ></upload-image>
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>

@@ -4,6 +4,7 @@ import { ref } from "vue";
 import TripCard from "../components/TripCardComponent.vue";
 import TripServices from "../services/TripServices.js";
 import moment from "moment";
+import TripDayServices from "../services/TripDayServices";
 
 // import { useVuerify } from "vuetify";
 
@@ -99,7 +100,7 @@ function closeSnackBar() {
           </v-card-title>
         </v-col>
         <v-col class="d-flex justify-end" cols="2">
-          <v-btn v-if="user !== null" color="accent" @click="openAdd()"
+          <v-btn v-if="user !== null && user.userType == 'Admin'" color="accent" @click="openAdd()"
             >Add</v-btn
           >
         </v-col>

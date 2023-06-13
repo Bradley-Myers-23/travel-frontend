@@ -16,16 +16,17 @@ const user = ref({
   lastName: "",
   email: "",
   password: "",
+  userType: "",
 });
 
 onMounted(async () => {
   if (localStorage.getItem("user") !== null) {
-    router.push({ name: "recipes" });
+    router.push({ name: "trips" });
   }
 });
 
-function navigateToRecipes() {
-  router.push({ name: "recipes" });
+function navigateToTrips() {
+  router.push({ name: "trips" });
 }
 
 async function createAccount() {
